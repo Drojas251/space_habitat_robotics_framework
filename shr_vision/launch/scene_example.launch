@@ -1,0 +1,6 @@
+<launch>
+
+	<node pkg="shr_vision" type="scene_example.py" name="scene_example" ns="/vx300s" output="screen"/>
+
+
+</launch>

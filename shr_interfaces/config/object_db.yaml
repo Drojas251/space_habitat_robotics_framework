@@ -1,0 +1,16 @@
+---
+cube: 
+  frame_id: "3"
+  type: "box"
+  dimensions: [0.0508, 0.0508, 0.060325]
+  transform: [0, 0, -0.03, 0, 0, 0, 0]
+box: 
+  frame_id: "1"
+  type: "box"
+  dimensions: [0.13, 0.05, 0.035]
+  transform: [0, 0, -0.0175, 0, 0, 0, 0]
+cylinder: 
+  frame_id: "0"
+  type: "cylinder"
+  dimensions: [0.085, 0.03175]
+  transform: [0, 0, -0.0425, 0, 0, 0, 0]

@@ -1,0 +1,6 @@
+# Define the goal
+float32 gripper_width
+---
+# Define the result
+---
+# Define a feedback message

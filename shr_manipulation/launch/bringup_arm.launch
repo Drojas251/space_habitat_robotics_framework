@@ -1,0 +1,28 @@
+<launch>
+
+	<node pkg="topic_tools" type="mux" name="mux_pointcloud" args="/camera/depth/color/sel_pointcloud /camera/depth/color/points none mux:=mux_pointcloud"/>
+	<node pkg="topic_tools" type="mux" name="mux_image_rect" args="/camera/color/sel_image_rect /camera/color/image_rect none mux:=mux_image_rect"/>
+
+	<include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+	<arg name="filters" value="pointcloud"/>
+	</include>
+
+	<node pkg="image_proc" type="image_proc" name="image_proc" ns="camera/color"/>
+
+	<include file="$(find apriltag_ros)/launch/continuous_detection.launch" >
+	</include>
+
+	<include file="$(find interbotix_xsarm_moveit)/launch/xsarm_moveit.launch" >
+	<arg name="robot_model" value="vx300s"/>
+	<!-- <arg name="use_actual" value="true"/> -->
+	<!-- <arg name="use_gazebo" value="true"/> -->
+	<arg name="use_fake" value="true"/>
+	<arg name="dof" value="6"/>
+	</include>
+
+	<param name="object_db" value="$(find shr_interfaces)/config/object_db.yaml" />
+	<param name="gripper" value="$(find shr_interfaces)/config/gripper.yaml" />
+
+    <node pkg="shr_vision" type="object_adder.py" name="object_adder" ns="/vx300s"/>
+
+</launch>

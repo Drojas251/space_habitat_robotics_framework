@@ -1,0 +1,7 @@
+<launch>
+
+	<node pkg="shr_manipulation" type="grasp_planner.py" name="grasp_planner" ns="/vx300s" output="screen"/>
+	<node pkg="shr_manipulation" type="control_arm.py" name="controller" ns="/vx300s" output="screen"/>
+
+
+</launch>

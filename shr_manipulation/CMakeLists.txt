@@ -7,7 +7,18 @@ project(shr_manipulation)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+  roscpp
+  rospy
+  std_msgs
+  moveit_msgs
+  moveit_ros_planning_interface
+  tf2
+  tf2_ros
+  actionlib_msgs
+  actionlib
+  shr_interfaces
+)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
