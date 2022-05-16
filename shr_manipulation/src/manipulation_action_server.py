@@ -18,56 +18,56 @@ from shr_interfaces.msg import \
 class ManipulationActionServer(ManipulationPrimitives):
     def __init__(self):
         super().__init__()
-        rospy.init_node('manipulation_action_server')
         
         self.move_to_pose_as = actionlib.SimpleActionServer(
             'move_to_pose', 
             MoveToPoseAction, 
             execute_cb=self.move_to_pose_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.move_to_pose_as.start()
         self.move_to_target_as = actionlib.SimpleActionServer(
             'move_to_target', 
             MoveToTargetAction, 
             execute_cb=self.move_to_target_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.move_to_target_as.start()
         self.move_gripper_as = actionlib.SimpleActionServer(
             'move_gripper', 
             MoveGripperAction, 
             execute_cb=self.move_gripper_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.move_gripper_as.start()
         self.move_gripper_to_target_as = actionlib.SimpleActionServer(
             'move_gripper_to_target', 
             MoveToTargetAction, 
             execute_cb=self.move_gripper_to_target_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.move_gripper_to_target_as.start()
         self.pick_as = actionlib.SimpleActionServer(
             'pick', 
             PickAction, 
             execute_cb=self.pick_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.pick_as.start()
         self.place_as = actionlib.SimpleActionServer(
-            'place', 
+            'place_object', 
             PlaceAction, 
             execute_cb=self.place_cb, 
-            auto_start=True
+            auto_start=False
         )
-
+        self.place_as.start()
         self.drop_as = actionlib.SimpleActionServer(
             'drop', 
             DropAction, 
             execute_cb=self.drop_cb, 
-            auto_start=True
+            auto_start=False
         )
+        self.drop_as.start()
 
         self.reset_service = rospy.Service("reset", Empty, self.reset_cb)
 
@@ -108,9 +108,9 @@ class ManipulationActionServer(ManipulationPrimitives):
             self.move_gripper_to_target_as.set_aborted()
 
     def pick_cb(self, goal):
-        goal.retreat = '+z' # temporary
-        goal.axis_constraints = ['+x', '-x', '+y', '-y', '-z'] # temporary
-        success = self.pick(goal.object_id, goal.retreat, goal.axis_constraints)
+        retreat = '+z' # temporary
+        axis_constraints = ['+x', '-x', '+y', '-y', '-z'] # temporary
+        success = self.pick(goal.object_id, retreat, axis_constraints)
 
         if success:
             self.pick_as.set_succeeded()
@@ -146,5 +146,6 @@ class ManipulationActionServer(ManipulationPrimitives):
         return SetBoolResponse()
 
 if __name__ == "__main__":
+    rospy.init_node('manipulation_action_server')
     manipulation_action_server = ManipulationActionServer()
     rospy.spin()

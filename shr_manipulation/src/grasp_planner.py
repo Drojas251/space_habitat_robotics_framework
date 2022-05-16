@@ -30,7 +30,7 @@ class GraspPlanner():
         self.robot = moveit_commander.RobotCommander()
         self.arm = moveit_commander.MoveGroupCommander("interbotix_arm")
 
-        self.pick_grasps_service = rospy.Service("pick_grasps_service", Grasps, self.pick_grasps)
+        self.pick_grasps_service = rospy.Service('grasp_planning_service', Grasps, self.pick_grasps)
 
         self.finger_max_in = .025
         self.finger_max_out = .0285

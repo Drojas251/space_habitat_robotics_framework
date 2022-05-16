@@ -1,10 +1,10 @@
-<?xml version="1.0"?>
 <launch>
 
-    <node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" />
 
-    <node pkg="shr_behavior_trees" type="test_bt" name="test_bt" output="screen">
-        <param name="file" value="$(find shr_behavior_trees)/bt_xml/pick.xml"/>
-    </node>
+
+
+    <param name="bt_xml" value="$(find shr_behavior_trees)/bt_xml/pick.xml"/>
+
+    <node pkg="shr_behavior_trees" type="test_bt" name="test_bt" ns="/vx300s" output="screen"/>
 
 </launch>

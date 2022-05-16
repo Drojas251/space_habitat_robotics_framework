@@ -30,7 +30,7 @@ class ManipulationPrimitives:
         self.arm.set_max_velocity_scaling_factor(1.0)
         self.arm.set_max_acceleration_scaling_factor(1.0)
 
-        self.get_grasps = rospy.ServiceProxy('grasp_planning_service', Grasps)
+        self.grasp_planning_service = rospy.ServiceProxy('grasp_planning_service', Grasps)
 
         self.finger_max_in = .025
         self.finger_max_out = .0285
@@ -189,7 +189,7 @@ class ManipulationPrimitives:
         self.enable_camera(False) # turns off Object Adder
 
         grasps = self.get_grasps(object_id, retreat, axis_constraints) # Gets grasp from grasp planner
-
+        
         for grasp in grasps:
             success = self.arm.pick(object_id, grasp, plan_only=True)
             if success > 0:
@@ -290,8 +290,11 @@ class ManipulationPrimitives:
         req.object_id = object_id
         req.retreat = retreat
         req.axis_constraints = axis_constraints
-        resp = self.get_grasps(req)
+        resp = self.grasp_planning_service(req)
         grasps = resp.grasps
+
+        print(grasps)
+        
 
         return grasps
 

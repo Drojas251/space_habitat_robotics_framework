@@ -1,6 +1,5 @@
-#include "pick_bt_node.h"
+#include "nodes/pick_node.h"
 #include <ros/ros.h>
-
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/loggers/bt_cout_logger.h>
@@ -11,10 +10,11 @@ using namespace BT;
 int main(int argc, char **argv) {
 
   ros::init(argc, argv, "test_bt");
-
   ros::NodeHandle nh("~");
+
   std::string xml_filename;
-  nh.param<std::string>("file", xml_filename);
+  nh.getParam("/bt_xml", xml_filename);
+  std::cout << xml_filename << "********" << std::endl;
   ROS_INFO("Loading XML : %s", xml_filename.c_str());
 
   // We use the BehaviorTreeFactory to register our custom nodes

@@ -11,7 +11,7 @@
 
 	<include file="$(find apriltag_ros)/launch/continuous_detection.launch" >
 	</include>
-
+	
 	<include file="$(find interbotix_xsarm_moveit)/launch/xsarm_moveit.launch" >
 	<arg name="robot_model" value="vx300s"/>
 	<!-- <arg name="use_actual" value="true"/> -->
@@ -24,5 +24,8 @@
 	<param name="gripper" value="$(find shr_interfaces)/config/gripper.yaml" />
 
     <node pkg="shr_vision" type="object_adder.py" name="object_adder" ns="/vx300s"/>
+	<node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" ns="/vx300s" output="screen"/>
+	<node pkg="shr_manipulation" type="grasp_planner.py" name="grasp_planner" ns="/vx300s" output="screen"/>
+
 
 </launch>
