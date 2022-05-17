@@ -14,9 +14,9 @@
 	
 	<include file="$(find interbotix_xsarm_moveit)/launch/xsarm_moveit.launch" >
 	<arg name="robot_model" value="vx300s"/>
-	<!-- <arg name="use_actual" value="true"/> -->
+	<arg name="use_actual" value="true"/>
 	<!-- <arg name="use_gazebo" value="true"/> -->
-	<arg name="use_fake" value="true"/>
+	<!-- <arg name="use_fake" value="true"/> -->
 	<arg name="dof" value="6"/>
 	</include>
 

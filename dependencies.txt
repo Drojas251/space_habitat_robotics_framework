@@ -1,0 +1,9 @@
+git clone https://github.com/ros/ros_comm.git -b noetic-devel
+git clone https://github.com/ROBOTIS-GIT/DynamixelSDK.git -b noetic-devel
+git clone https://github.com/AprilRobotics/apriltag.git      # Clone Apriltag library
+git clone https://github.com/AprilRobotics/apriltag_ros.git  # Clone Apriltag ROS wrapper
+git clone https://github.com/ros-perception/image_pipeline.git -b noetic
+git clone https://github.com/issaiass/realsense2_description # might not need this 
+git clone https://github.com/Interbotix/interbotix_ros_core.git
+git clone https://github.com/Interbotix/interbotix_ros_manipulators.git -b noetic
+git clone https://github.com/Interbotix/interbotix_ros_toolboxes.git
