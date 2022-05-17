@@ -108,9 +108,7 @@ class ManipulationActionServer(ManipulationPrimitives):
             self.move_gripper_to_target_as.set_aborted()
 
     def pick_cb(self, goal):
-        retreat = '+z' # temporary
-        axis_constraints = ['+x', '-x', '+y', '-y', '-z'] # temporary
-        success = self.pick(goal.object_id, retreat, axis_constraints)
+        success = self.pick(goal.object_id, goal.retreat)
 
         if success:
             self.pick_as.set_succeeded()

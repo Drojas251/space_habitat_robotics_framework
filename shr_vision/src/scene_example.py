@@ -34,7 +34,7 @@ if __name__ == '__main__':
     scene.remove_attached_object('vx300s/ee_gripper_link')
     scene.remove_world_object()
     
-    scene.add_box("cube", create_pose(.3, .2, .03, 0, 0, tau/8), size=(.06, 0.06, .06))
+    scene.add_box("cube", create_pose(.3, .2, .03, 0, tau/8, tau/8), size=(.06, 0.06, .06))
     scene.add_box("box", create_pose(.3, -.2, .03, 0, 0, -tau/8), size=(0.145, 0.058, 0.044))
     scene.add_cylinder("cylinder", create_pose(.4, 0, .1, 0, 0, .1), .2, .015)
 

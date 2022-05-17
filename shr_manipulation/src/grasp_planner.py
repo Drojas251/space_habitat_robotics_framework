@@ -102,7 +102,7 @@ class GraspPlanner():
                                 score -= (pitch)**2
 
                                 gripper_world_pose = self.get_gripper_world_pose(gripper_pose, object.pose)
-                                grasp_msg = self.grasp_msg(object.id, gripper_world_pose, 2*c_r, retreat, score)
+                                grasp_msg = self.grasp_msg(object, gripper_world_pose, 2*c_r, retreat, score)
                                 
                                 grasps.append(grasp_msg)
 
@@ -124,7 +124,7 @@ class GraspPlanner():
                                 score -= (fr - ((c_h/2)-fi)) ** 2
 
                                 gripper_world_pose = self.get_gripper_world_pose(gripper_pose, object.pose)
-                                grasp_msg = self.grasp_msg(object.id, gripper_world_pose, 2*c_r, retreat, score)
+                                grasp_msg = self.grasp_msg(object, gripper_world_pose, 2*c_r, retreat, score)
                                 
                                 grasps.append(grasp_msg)
 
@@ -144,7 +144,7 @@ class GraspPlanner():
                                 score -= (fr - ((c_h/2)-fi)) ** 2
 
                                 gripper_world_pose = self.get_gripper_world_pose(gripper_pose, object.pose)
-                                grasp_msg = self.grasp_msg(object.id, gripper_world_pose, 2*c_r, retreat, score)
+                                grasp_msg = self.grasp_msg(object, gripper_world_pose, 2*c_r, retreat, score)
                                 
                                 grasps.append(grasp_msg)
 
@@ -170,7 +170,7 @@ class GraspPlanner():
                         score -= (fr - finger_max_in) ** 2
 
                         gripper_world_pose = self.get_gripper_world_pose(gripper_pose, object.pose)
-                        grasp_msg = self.grasp_msg(object.id, gripper_world_pose, c_h, retreat, score)
+                        grasp_msg = self.grasp_msg(object, gripper_world_pose, c_h, retreat, score)
                         
                         grasps.append(grasp_msg)
 
@@ -420,7 +420,7 @@ class GraspPlanner():
                         score -= (k)**2
 
                         gripper_world_pose = self.get_gripper_world_pose(gripper_pose, object.pose)
-                        grasp_msg = self.grasp_msg(object.id, gripper_world_pose, box_w, retreat, score)
+                        grasp_msg = self.grasp_msg(object, gripper_world_pose, box_w, retreat, score)
                         
                         grasps.append(grasp_msg)
         
@@ -453,7 +453,7 @@ class GraspPlanner():
 
         return posture
     
-    def grasp_msg(self, object_id, gripper_pose, gripper_width, retreat, score):
+    def grasp_msg(self, object, gripper_pose, gripper_width, retreat, score):
         grasp = moveit_msgs.msg.Grasp()
         
         grasp.grasp_pose.header.frame_id = "vx300s/base_link"
@@ -475,14 +475,21 @@ class GraspPlanner():
 
         grasp.post_grasp_retreat.direction.header.frame_id = "vx300s/base_link"
 
-        if retreat and (retreat in retreat_vectors):
+        if retreat != '' and (retreat in retreat_vectors):
             vector = retreat_vectors[retreat]
             grasp.post_grasp_retreat.direction.vector.x = vector[0]
             grasp.post_grasp_retreat.direction.vector.y = vector[1]
             grasp.post_grasp_retreat.direction.vector.z = vector[2]
         else:
-            retreat_vector = objects[object_id]['retreat_vector']
-            grasp.post_grasp_retreat.direction.vector.x = -0.5
+            retreat_vector = geometry_msgs.msg.Vector3Stamped()
+            v = objects[object.id]['retreat_vector']
+            retreat_vector.vector.x = v[0]
+            retreat_vector.vector.y = v[1]
+            retreat_vector.vector.z = v[2]
+
+            retreat_vector = self.get_vector_in_world(retreat_vector, object.pose)
+            
+            grasp.post_grasp_retreat.direction.vector = retreat_vector.vector
 
 
 
@@ -506,15 +513,19 @@ class GraspPlanner():
 
         return gripper_world_pose
 
-    def get_gripper_world_pose(self, gripper_pose, object_pose):
+    def get_vector_in_world(self, vector, object_pose):
         trans = geometry_msgs.msg.TransformStamped()
         trans.transform.translation.x = object_pose.position.x
         trans.transform.translation.y = object_pose.position.y
         trans.transform.translation.z = object_pose.position.z
         trans.transform.rotation = object_pose.orientation
-        gripper_world_pose = tf2_geometry_msgs.do_transform_pose(gripper_pose, trans)
+        rospy.loginfo("transforming")
+        rospy.loginfo(vector)
+        vector_in_world = tf2_geometry_msgs.do_transform_vector3(vector, trans)
+        rospy.loginfo("transformed")
+        rospy.loginfo(vector_in_world)
 
-        return gripper_world_pose
+        return vector_in_world
 
 
 if __name__ == '__main__':

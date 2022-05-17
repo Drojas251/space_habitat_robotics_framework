@@ -187,7 +187,7 @@ class ManipulationPrimitives:
         status = True
         return status
   
-    def pick(self, object_id, retreat=None):
+    def pick(self, object_id, retreat=''):
         status = False
 
         self.enable_camera(False) # turns off Object Adder
@@ -277,16 +277,13 @@ class ManipulationPrimitives:
         rate = rospy.Rate(1/sec)
         rate.sleep()
 
-    def get_grasps(self,object_id, retreat=None):
+    def get_grasps(self,object_id, retreat=''):
         rospy.wait_for_service('grasp_planning_service')
         req = GraspsRequest()
         req.object_id = object_id
         req.retreat = retreat
         resp = self.grasp_planning_service(req)
-        grasps = resp.grasps
-
-        print(grasps)
-        
+        grasps = resp.grasps        
 
         return grasps
 

@@ -1,5 +1,6 @@
 # Define the goal
 string object_id
+string retreat
 ---
 # Define the result
 ---
