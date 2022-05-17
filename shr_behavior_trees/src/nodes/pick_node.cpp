@@ -3,8 +3,8 @@
 using namespace BT;
 
 Pick::Pick(const std::string& name, const BT::NodeConfiguration& config): 
-  SyncActionNode(name, config),
-  pick_client("pick", true) 
+  AsyncActionNode(name, config),
+  pick_client("pick", true)
 {
 }
 
@@ -28,15 +28,24 @@ BT::NodeStatus Pick::tick() {
     throw BT::RuntimeError("missing required input [goal]");
   }
 
+  // Reset this flag
+  _aborted = false;
+
   ROS_INFO("Sending goal");
 
   shr_interfaces::PickGoal msg;
   msg.object_id = object_id;
-  std::cout << msg.object_id << std::endl;
   pick_client.sendGoal(msg);
 
-  while (!pick_client.waitForResult(ros::Duration(0.02))) {
+  while (!_aborted && !pick_client.waitForResult(ros::Duration(0.02))) {
     // polling at 50 Hz. No big deal in terms of CPU
+  }
+
+  if (_aborted) {
+    // this happens only if method halt() was invoked
+    //_client.cancelAllGoals();
+    ROS_ERROR("Pick aborted");
+    return BT::NodeStatus::FAILURE;
   }
 
   if (pick_client.getState() != actionlib::SimpleClientGoalState::SUCCEEDED) {
@@ -46,4 +55,9 @@ BT::NodeStatus Pick::tick() {
 
   ROS_INFO("Pick succeeded");
   return BT::NodeStatus::SUCCESS;
+}
+
+void Pick::halt() 
+{
+  _aborted = true;
 }

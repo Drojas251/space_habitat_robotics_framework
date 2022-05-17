@@ -8,6 +8,8 @@ behaviortree_cpp_v3
 actionlib_msgs
 actionlib
 shr_interfaces
+tf2
+tf2_ros
 )
 
 find_package(catkin REQUIRED COMPONENTS ${ROS_DEPENDENCIES} )
@@ -60,7 +62,14 @@ catkin_package(
 
 include_directories( include ${catkin_INCLUDE_DIRS})
 
-add_executable(test_bt src/test_bt.cpp src/nodes/pick_node.cpp)
+add_executable(test_bt src/test_bt.cpp 
+src/nodes/pick_node.cpp 
+src/nodes/move_to_target_node.cpp
+src/nodes/move_gripper_to_target_node.cpp
+src/nodes/move_to_pose_node.cpp
+src/nodes/move_gripper_node.cpp
+src/nodes/place_node.cpp
+)
 add_dependencies(test_bt ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(test_bt ${catkin_LIBRARIES} )
 

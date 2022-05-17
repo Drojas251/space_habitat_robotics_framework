@@ -1,7 +1,7 @@
 <root main_tree_to_execute = "MainTree">
     <BehaviorTree ID="MainTree">
         <Sequence>
-            <SetBlackboard output_key="id_1" value="cube" />
+            <SetBlackboard output_key="id_1" value="0" />
             <Fallback>
                 <Sequence>
                     <SubTree ID="MoveRobot" target="id_1" />
@@ -12,7 +12,14 @@
 
     <BehaviorTree ID="MoveRobot">
         <Sequence name="SetGoal">
-            <Pick object_id="{target}" />
+            <Pick object_id="cube"/>
+            <Place pose="-0.4;0;0.1;0;0;0"/>
+            <MoveGripperToTarget target="Closed" />
+            <MoveGripperToTarget target="Open" />
+            <MoveGripper gripper_width="0" />  <!-- GRIPPER_POSITION_BROKEN -->
+            <MoveToTarget target="step6" />
+            <MoveToTarget target="step1" />
+            <MoveToTarget target="step2" />
         </Sequence>
     </BehaviorTree>
 </root>

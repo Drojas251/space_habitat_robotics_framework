@@ -118,7 +118,7 @@ class ManipulationActionServer(ManipulationPrimitives):
             self.pick_as.set_aborted()
 
     def place_cb(self, goal):
-        success = self.place(goal.object_id, goal.pose, delete_object=goal.delete_object)
+        success = self.place(goal.pose)
 
         if success:
             self.place_as.set_succeeded()

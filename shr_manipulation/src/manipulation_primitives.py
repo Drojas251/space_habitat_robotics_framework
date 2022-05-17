@@ -36,6 +36,8 @@ class ManipulationPrimitives:
         self.finger_max_out = .0285
         self.max_gripper_width = .08
 
+        self.attached_object = None
+
     def move_to_pose_msg(self, pose):
         # Moves to a defined Pose
         status = False
@@ -121,6 +123,7 @@ class ManipulationPrimitives:
 
         error_code_val, plan, planning_time, error_code = self.gripper.plan()
         success = (error_code_val == moveit_msgs.msg.MoveItErrorCodes.SUCCESS)
+
         if success:
             pass
         else:
@@ -129,7 +132,8 @@ class ManipulationPrimitives:
 
         error_code_val = self.gripper.execute(plan)
         success = (error_code_val == moveit_msgs.msg.MoveItErrorCodes.SUCCESS)
-        if error_code_val != moveit_msgs.msg.MoveItErrorCodes.SUCCESS:
+
+        if success:
             pass
         else:
             status = False
@@ -183,12 +187,12 @@ class ManipulationPrimitives:
         status = True
         return status
   
-    def pick(self, object_id, retreat=None, axis_constraints=[]):
+    def pick(self, object_id, retreat=None):
         status = False
 
         self.enable_camera(False) # turns off Object Adder
 
-        grasps = self.get_grasps(object_id, retreat, axis_constraints) # Gets grasp from grasp planner
+        grasps = self.get_grasps(object_id, retreat=retreat) # Gets grasp from grasp planner
         
         for grasp in grasps:
             success = self.arm.pick(object_id, grasp, plan_only=True)
@@ -200,13 +204,14 @@ class ManipulationPrimitives:
                 status = False
 
         if status:
+            self.attached_object = object_id
             pass
         else:
             self.enable_camera(True)
             
         return status
 
-    def drop(self, object_id, pose):
+    def drop(self, pose):
         status = False
 
         success = self.move_to_pose_msg(pose)
@@ -232,36 +237,24 @@ class ManipulationPrimitives:
         status = True
         return status
 
-    def place(self, object_id, pose, delete_object=False):
+    def place(self, pose):
         status = False
 
-        place_location = moveit_msgs.msg.PlaceLocation()
+        if self.attached_object == None or \
+        len(self.scene.get_attached_objects([self.attached_object])) == 0:
+            rospy.logerr("No object is attached")
+            status = False
+            return status
 
-        place_location.place_pose.header.frame_id = "vx300s/base_link"
-        place_location.place_pose.pose = pose
-
-        place_location.pre_place_approach.direction.header.frame_id = "vx300s/base_link"
-        place_location.pre_place_approach.direction.vector.z = -1.0
-        place_location.pre_place_approach.min_distance = 0
-        place_location.pre_place_approach.desired_distance = 0.115
-
-        place_location.post_place_retreat.direction.header.frame_id = "vx300s/ee_gripper_link"
-        place_location.post_place_retreat.direction.vector.x = -0.5
-        place_location.post_place_retreat.min_distance = self.finger_max_in + self.finger_max_out + 0.05
-        place_location.post_place_retreat.desired_distance = 0.1 + self.finger_max_in + self.finger_max_out
-
-        place_location.post_place_posture = self.__open_gripper_posture()
-
-        success = self.arm.place(object_id, pose)
+        success = self.arm.place(self.attached_object, pose)
 
         if success > 0:
             status = True
         else:
             status = False
+            return status
 
-        if delete_object: 
-            self.remove_object(object_id)
-
+        self.remove_object(self.attached_object)
         self.enable_camera(True)
 
         return status
@@ -284,12 +277,11 @@ class ManipulationPrimitives:
         rate = rospy.Rate(1/sec)
         rate.sleep()
 
-    def get_grasps(self,object_id, retreat=None, axis_constraints=[]):
+    def get_grasps(self,object_id, retreat=None):
         rospy.wait_for_service('grasp_planning_service')
         req = GraspsRequest()
         req.object_id = object_id
         req.retreat = retreat
-        req.axis_constraints = axis_constraints
         resp = self.grasp_planning_service(req)
         grasps = resp.grasps
 
@@ -336,6 +328,7 @@ class ManipulationPrimitives:
     def detach_object(self, object_id):
         self.wait(0.1)
         self.scene.remove_attached_object(link='vx300s/ee_gripper_link', name=object_id)
+        self.attached_object = None
         self.wait(0.1)
 
     def clear_octomap(self):

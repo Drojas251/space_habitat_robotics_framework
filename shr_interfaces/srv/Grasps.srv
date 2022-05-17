@@ -1,5 +1,4 @@
 string object_id
 string retreat
-string[] axis_constraints
 ---
 moveit_msgs/Grasp[] grasps

@@ -1,4 +1,9 @@
 #include "nodes/pick_node.h"
+#include "nodes/place_node.h"
+#include "nodes/move_to_target_node.h"
+#include "nodes/move_to_pose_node.h"
+#include "nodes/move_gripper_node.h"
+#include "nodes/move_gripper_to_target_node.h"
 #include <ros/ros.h>
 
 #include <behaviortree_cpp_v3/bt_factory.h>
@@ -21,6 +26,11 @@ int main(int argc, char **argv) {
   BehaviorTreeFactory factory;
 
   factory.registerNodeType<Pick>("Pick");
+  factory.registerNodeType<Place>("Place");
+  factory.registerNodeType<MoveToTarget>("MoveToTarget");
+  factory.registerNodeType<MoveToPose>("MoveToPose");
+  factory.registerNodeType<MoveGripper>("MoveGripper");
+  factory.registerNodeType<MoveGripperToTarget>("MoveGripperToTarget");
 
 
 
