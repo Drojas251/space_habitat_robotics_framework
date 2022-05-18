@@ -1,0 +1,6 @@
+<launch>
+
+	<node pkg="shr_http_server" type="http_server.py" name="http_server" output="screen"/>
+
+
+</launch>

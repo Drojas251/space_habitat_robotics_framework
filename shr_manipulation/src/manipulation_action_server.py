@@ -70,7 +70,7 @@ class ManipulationActionServer(ManipulationPrimitives):
         )
         self.drop_as.start()
 
-        self.clear_octomap_service = rospy.Service("clear_octomap", Trigger, self.clear_octomap_cb)
+        self.clear_octomap_service = rospy.Service("clear_octomap_node", Trigger, self.clear_octomap_cb)
 
         self.remove_object_service = rospy.Service("remove_object", String, self.remove_object_cb)
 

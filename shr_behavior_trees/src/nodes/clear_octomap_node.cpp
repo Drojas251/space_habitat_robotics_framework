@@ -13,7 +13,7 @@ PortsList ClearOctomap::providedPorts() {
 
 BT::NodeStatus ClearOctomap::tick() {
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("clear_octomap");
+  ros::ServiceClient client = n.serviceClient<std_srvs::Trigger>("clear_octomap_node");
   std_srvs::Trigger srv;
 
   if (client.call(srv))

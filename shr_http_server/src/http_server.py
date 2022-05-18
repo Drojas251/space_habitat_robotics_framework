@@ -1,0 +1,126 @@
+#! /usr/bin/env python3
+
+import os
+import rospy
+import threading
+import json
+
+from manipulation_client import ManipulationClient
+from tf.transformations import quaternion_from_euler
+from geometry_msgs.msg import Pose, Quaternion
+
+from flask import Flask, request, jsonify, json
+from werkzeug.exceptions import HTTPException
+
+
+def get_pose_msg(pose_str):
+    parts = pose_str.split(';')
+    parts = [float(x) for x in parts]
+    pose = Pose()
+
+    if len(parts) == 6:
+        pose.position.x = parts[0]
+        pose.position.y = parts[1]
+        pose.position.z = parts[2]
+        quat_tf = quaternion_from_euler(parts[3], parts[4], parts[5])
+        orientation = Quaternion(quat_tf[0], quat_tf[1], quat_tf[2], quat_tf[3])
+        pose.orientation = orientation   
+
+    elif len(parts) == 7:
+        pose.position.x = parts[0]
+        pose.position.y = parts[1]
+        pose.position.z = parts[2]
+        pose.orientation.x = parts[3]
+        pose.orientation.y = parts[4]
+        pose.orientation.z = parts[5]
+        pose.orientation.w = parts[6]
+    else:
+        raise Exception("Invalid pose string")
+
+    return pose
+
+
+threading.Thread(target=lambda: rospy.init_node('http_server', disable_signals=True)).start()
+manipulation_client = ManipulationClient('/vx300s')
+
+app = Flask(__name__)
+
+@app.route('/move-to-pose', methods=['GET'])
+def move_to_pose():
+    request_data = request.get_json()
+
+    pose_str = request_data['pose']
+
+    try:
+        pose = get_pose_msg(pose_str)
+    except:
+        return jsonify({'message': 'invalid pose'})
+
+    success = manipulation_client.move_to_pose_client(pose)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'move_to_pose failed'})
+
+
+@app.route('/move-to-target', methods=['GET'])
+def move_to_target():
+    request_data = request.get_json()
+
+    target = request_data['target']
+
+    success = manipulation_client.move_to_target_client(target)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'move_to_target failed'})
+
+@app.route('/move-gripper-to-target', methods=['GET'])
+def move_gripper_to_target():
+    request_data = request.get_json()
+
+    target = request_data['target']
+
+    success = manipulation_client.move_gripper_to_target_client(target)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'move_gripper_to_target failed'})
+
+@app.route('/move-gripper', methods=['GET'])
+def move_gripper():
+    request_data = request.get_json()
+
+    gripper_width = request_data['gripper_width']
+
+    try:
+        gripper_width = float(gripper_width)
+    except:
+        return jsonify({'message': 'invalid gripper_width'})
+
+    success = manipulation_client.gripper_width_client(gripper_width)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'move_gripper failed'})
+
+@app.route('/pick', methods=['GET'])
+def pick():
+    request_data = request.get_json()
+
+    object_id = request_data['object_id']
+    retreat = '' if 'retreat' not in request_data else request_data['retreat']
+
+    success = manipulation_client.pick_client(object_id, retreat)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'move_to_target failed'})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000, debug=True)
