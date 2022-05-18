@@ -69,6 +69,12 @@ src/nodes/move_gripper_to_target_node.cpp
 src/nodes/move_to_pose_node.cpp
 src/nodes/move_gripper_node.cpp
 src/nodes/place_node.cpp
+src/nodes/remove_object_node.cpp
+src/nodes/detach_object_node.cpp
+src/nodes/reset_node.cpp
+src/nodes/clear_octomap_node.cpp
+src/nodes/enable_camera_node.cpp
+src/nodes/wait_node.cpp
 )
 add_dependencies(test_bt ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(test_bt ${catkin_LIBRARIES} )

@@ -62,6 +62,8 @@ moveit_msgs
 add_service_files(
   FILES
   Grasps.srv
+  String.srv
+  Float.srv
 )
 
 # Generate actions in the 'action' folder

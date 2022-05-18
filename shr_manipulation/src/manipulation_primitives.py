@@ -8,7 +8,6 @@ from tf.transformations import quaternion_from_euler
 import math
 
 import moveit_msgs.msg
-import trajectory_msgs.msg
 import geometry_msgs.msg
 
 from shr_interfaces.srv import Grasps, GraspsRequest
@@ -35,8 +34,6 @@ class ManipulationPrimitives:
         self.finger_max_in = .025
         self.finger_max_out = .0285
         self.max_gripper_width = .08
-
-        self.attached_object = None
 
     def move_to_pose_msg(self, pose):
         # Moves to a defined Pose
@@ -113,7 +110,7 @@ class ManipulationPrimitives:
         status = True
         return status
 
-    def move_gripper(self, gripper_width):
+    def move_gripper(self, gripper_width):  # todo must fix
         status = False
 
         pos = np.clip(0.51018 * gripper_width + 0.0134679, 0.021, 0.057)
@@ -204,14 +201,13 @@ class ManipulationPrimitives:
                 status = False
 
         if status:
-            self.attached_object = object_id
             pass
         else:
             self.enable_camera(True)
             
         return status
 
-    def drop(self, pose):
+    def drop(self, object_id, pose):
         status = False
 
         success = self.move_to_pose_msg(pose)
@@ -237,16 +233,15 @@ class ManipulationPrimitives:
         status = True
         return status
 
-    def place(self, pose):
+    def place(self, object_id, pose):
         status = False
 
-        if self.attached_object == None or \
-        len(self.scene.get_attached_objects([self.attached_object])) == 0:
+        if len(self.scene.get_attached_objects([object_id])) == 0:
             rospy.logerr("No object is attached")
             status = False
             return status
 
-        success = self.arm.place(self.attached_object, pose)
+        success = self.arm.place(object_id, pose)
 
         if success > 0:
             status = True
@@ -254,7 +249,6 @@ class ManipulationPrimitives:
             status = False
             return status
 
-        self.remove_object(self.attached_object)
         self.enable_camera(True)
 
         return status
@@ -264,8 +258,11 @@ class ManipulationPrimitives:
 
         try:
             self.enable_camera(True)
-            self.detach_and_remove_all_objects()
-            self.wait(2)
+            self.wait(0.1)
+            self.scene.remove_attached_object(link='vx300s/ee_gripper_link')
+            self.wait(0.1)
+            self.scene.remove_world_object()
+            self.wait(1)
             self.clear_octomap()
             status = True
         except:
@@ -274,9 +271,17 @@ class ManipulationPrimitives:
         return status        
 
     def wait(self, sec):
-        rate = rospy.Rate(1/sec)
-        rate.sleep()
+        status = False
 
+        try:
+            rate = rospy.Rate(1/sec)
+            rate.sleep()
+            status = True
+        except:
+            status = False
+
+        return status 
+        
     def get_grasps(self,object_id, retreat=''):
         rospy.wait_for_service('grasp_planning_service')
         req = GraspsRequest()
@@ -288,10 +293,12 @@ class ManipulationPrimitives:
         return grasps
 
     def enable_camera(self, on):
-        rospy.wait_for_service('/mux_image_rect/select')
-        rospy.wait_for_service('/mux_pointcloud/select')
+        status = False  
 
         try:
+            rospy.wait_for_service('/mux_image_rect/select')
+            rospy.wait_for_service('/mux_pointcloud/select')
+
             select_image_rect_service = rospy.ServiceProxy('/mux_image_rect/select', MuxSelect)
             select_pointcloud_service = rospy.ServiceProxy('/mux_pointcloud/select', MuxSelect)
 
@@ -307,46 +314,52 @@ class ManipulationPrimitives:
             select_pointcloud_service(req_pointcloud)
             select_image_rect_service(req_image_rect)
 
-        except rospy.ServiceException as e:         
-            print("Enable camera service calls failed: %s"%e)
+            status = True
 
-    def detach_and_remove_all_objects(self):
-        self.wait(0.1)
-        self.scene.remove_attached_object(link='vx300s/ee_gripper_link')
-        self.wait(0.1)
-        self.scene.remove_world_object()
-        self.wait(0.1)
+        except rospy.ServiceException as e:         
+            rospy.logerr("Enable camera service calls failed: %s"%e)
+            status = False
+        
+        return status    
 
     def remove_object(self, object_id):
-        self.wait(0.1)
-        self.scene.remove_world_object(object_id)
-        self.wait(0.1)
-
-    def detach_object(self, object_id):
-        self.wait(0.1)
-        self.scene.remove_attached_object(link='vx300s/ee_gripper_link', name=object_id)
-        self.attached_object = None
-        self.wait(0.1)
-
-    def clear_octomap(self):
-        rospy.wait_for_service('/vx300s/clear_octomap')
+        status = False
 
         try:
+            self.wait(0.1)
+            self.scene.remove_world_object(object_id)
+            self.wait(0.1)
+            status = True
+        except:
+            status = False
+
+        return status        
+
+    def detach_object(self, object_id):
+
+        status = False
+
+        try:
+            self.wait(0.1)
+            self.scene.remove_attached_object(link='vx300s/ee_gripper_link', name=object_id)
+            self.wait(0.1)
+            status = True
+        except:
+            status = False
+
+        return status 
+
+    def clear_octomap(self):
+        status = False
+
+        try:
+            rospy.wait_for_service('/vx300s/clear_octomap')
             clear_octomap_service = rospy.ServiceProxy('/vx300s/clear_octomap', Empty)
             clear_octomap_service()
+            status = True
 
         except rospy.ServiceException as e:         
-            print("Clear octomap service call failed: %s"%e)
-
-    def __open_gripper_posture(self):
-        posture = trajectory_msgs.msg.JointTrajectory()
-
-        posture.joint_names = ["left_finger", "right_finger"]
-
-        point = trajectory_msgs.msg.JointTrajectoryPoint()
-        point.positions = [0.057, -0.057]
-        point.time_from_start = rospy.Duration(0.5)
-
-        posture.points.append(point)
-
-        return posture
+            rospy.logerr("Clear octomap service call failed: %s"%e)
+            status = False
+        
+        return status

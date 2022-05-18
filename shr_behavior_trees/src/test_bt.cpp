@@ -4,6 +4,12 @@
 #include "nodes/move_to_pose_node.h"
 #include "nodes/move_gripper_node.h"
 #include "nodes/move_gripper_to_target_node.h"
+#include "nodes/remove_object_node.h"
+#include "nodes/detach_object_node.h"
+#include "nodes/clear_octomap_node.h"
+#include "nodes/enable_camera_node.h"
+#include "nodes/wait_node.h"
+#include "nodes/reset_node.h"
 #include <ros/ros.h>
 
 #include <behaviortree_cpp_v3/bt_factory.h>
@@ -31,7 +37,12 @@ int main(int argc, char **argv) {
   factory.registerNodeType<MoveToPose>("MoveToPose");
   factory.registerNodeType<MoveGripper>("MoveGripper");
   factory.registerNodeType<MoveGripperToTarget>("MoveGripperToTarget");
-
+  factory.registerNodeType<RemoveObject>("RemoveObject");
+  factory.registerNodeType<DetachObject>("DetachObject");
+  factory.registerNodeType<Reset>("Reset");
+  factory.registerNodeType<ClearOctomap>("ClearOctomap");
+  factory.registerNodeType<EnableCamera>("EnableCamera");
+  factory.registerNodeType<Wait>("Wait");
 
 
   // Trees are created at deployment-time (i.e. at run-time, but only once at

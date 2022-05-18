@@ -12,14 +12,21 @@
 
     <BehaviorTree ID="MoveRobot">
         <Sequence name="SetGoal">
-            <Pick object_id="cube"/>
-            <Place pose="-0.4;0;0.1;0;0;0"/>
-            <MoveGripperToTarget target="Closed" />
-            <MoveGripperToTarget target="Open" />
-            <MoveGripper gripper_width="0" />  <!-- GRIPPER_POSITION_BROKEN -->
             <MoveToTarget target="step6" />
-            <MoveToTarget target="step1" />
-            <MoveToTarget target="step2" />
+            <Wait sec="3" />
+            <Pick object_id="cylinder" retreat="-x"/>
+            <MoveGripperToTarget target="Open"/>
+            <DetachObject object_id="cylinder"/>
+            <EnableCamera enable="true" />
+            <Pick object_id="cylinder"/>
+            <Place object_id="cylinder" pose="0.4;0;0.1;0;0;0"/>
+            <RemoveObject object_id="cylinder"/>
+            <MoveGripper gripper_width="0.05" />  <!-- GRIPPER_POSITION_BROKEN -->
+            <MoveToPose pose="0.2;0;0.5;0;0;0"/>
+            <ClearOctomap/>
+            <Reset/>
+            
+            
         </Sequence>
     </BehaviorTree>
 </root>

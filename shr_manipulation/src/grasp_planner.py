@@ -519,11 +519,7 @@ class GraspPlanner():
         trans.transform.translation.y = object_pose.position.y
         trans.transform.translation.z = object_pose.position.z
         trans.transform.rotation = object_pose.orientation
-        rospy.loginfo("transforming")
-        rospy.loginfo(vector)
         vector_in_world = tf2_geometry_msgs.do_transform_vector3(vector, trans)
-        rospy.loginfo("transformed")
-        rospy.loginfo(vector_in_world)
 
         return vector_in_world
 

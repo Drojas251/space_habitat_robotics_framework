@@ -9,7 +9,10 @@ Pick::Pick(const std::string& name, const BT::NodeConfiguration& config):
 }
 
 PortsList Pick::providedPorts() {
-  return { InputPort<std::string>("object_id") };
+  return { 
+    InputPort<std::string>("object_id"),
+    InputPort<std::string>("retreat"),
+  };
 }
 
 BT::NodeStatus Pick::tick() {
@@ -21,11 +24,16 @@ BT::NodeStatus Pick::tick() {
 
   // Take the goal from the InputPort of the Node
   std::string object_id;
+  std::string retreat;
 
   if (!getInput<std::string>("object_id", object_id)) {
     // if I can't get this, there is something wrong with your BT.
     // For this reason throw an exception instead of returning FAILURE
     throw BT::RuntimeError("missing required input [goal]");
+  }
+
+  if (!getInput<std::string>("retreat", retreat)) {
+    retreat = "";
   }
 
   // Reset this flag
@@ -35,6 +43,7 @@ BT::NodeStatus Pick::tick() {
 
   shr_interfaces::PickGoal msg;
   msg.object_id = object_id;
+  msg.retreat = retreat;
   pick_client.sendGoal(msg);
 
   while (!_aborted && !pick_client.waitForResult(ros::Duration(0.02))) {

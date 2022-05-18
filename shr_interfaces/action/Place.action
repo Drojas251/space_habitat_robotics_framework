@@ -1,7 +1,6 @@
 # Define the goal
 string object_id
 geometry_msgs/Pose pose
-bool delete_object
 ---
 # Define the result
 ---

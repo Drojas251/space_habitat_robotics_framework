@@ -54,7 +54,10 @@ Place::Place(const std::string& name, const BT::NodeConfiguration& config):
 }
 
 PortsList Place::providedPorts() {
-  return { InputPort<geometry_msgs::Pose>("pose") };
+  return { 
+    InputPort<std::string>("object_id"), 
+    InputPort<geometry_msgs::Pose>("pose"), 
+  };
 }
 
 BT::NodeStatus Place::tick() {
@@ -66,10 +69,12 @@ BT::NodeStatus Place::tick() {
 
   // Take the goal from the InputPort of the Node
   geometry_msgs::Pose pose;
+  std::string object_id;
 
   if (!getInput<geometry_msgs::Pose>("pose", pose)) {
-    // if I can't get this, there is something wrong with your BT.
-    // For this reason throw an exception instead of returning FAILURE
+    throw BT::RuntimeError("missing required input [goal]");
+  }
+  if (!getInput<std::string>("object_id", object_id)) {
     throw BT::RuntimeError("missing required input [goal]");
   }
 
@@ -80,6 +85,7 @@ BT::NodeStatus Place::tick() {
 
   shr_interfaces::PlaceGoal msg;
   msg.pose = pose;
+  msg.object_id = object_id;
   place_client.sendGoal(msg);
 
   while (!_aborted && !place_client.waitForResult(ros::Duration(0.02))) {

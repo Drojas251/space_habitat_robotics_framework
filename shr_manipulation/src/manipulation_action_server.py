@@ -5,7 +5,8 @@ import actionlib
 from manipulation_primitives import ManipulationPrimitives
 import math
 
-from std_srvs.srv import SetBool, SetBoolResponse, Empty, EmptyResponse
+from std_srvs.srv import SetBool, SetBoolResponse, Empty, EmptyResponse, Trigger, TriggerResponse
+from shr_interfaces.srv import String, StringResponse, Float, FloatResponse
 
 from shr_interfaces.msg import \
     DropAction, DropFeedback, DropResult, \
@@ -69,9 +70,15 @@ class ManipulationActionServer(ManipulationPrimitives):
         )
         self.drop_as.start()
 
+        self.clear_octomap_service = rospy.Service("clear_octomap", Trigger, self.clear_octomap_cb)
+
+        self.remove_object_service = rospy.Service("remove_object", String, self.remove_object_cb)
+
+        self.detach_object_service = rospy.Service("detach_object", String, self.detach_object_cb)
+
         self.reset_service = rospy.Service("reset", Empty, self.reset_cb)
 
-        self.wait_service = rospy.Service("wait", Empty, self.wait_cb)
+        self.wait_service = rospy.Service("wait", Float, self.wait_cb)
 
         self.enable_camera_service = rospy.Service("enable_camera", SetBool, self.enable_camera_cb)
 
@@ -116,7 +123,7 @@ class ManipulationActionServer(ManipulationPrimitives):
             self.pick_as.set_aborted()
 
     def place_cb(self, goal):
-        success = self.place(goal.pose)
+        success = self.place(goal.object_id, goal.pose)
 
         if success:
             self.place_as.set_succeeded()
@@ -131,17 +138,35 @@ class ManipulationActionServer(ManipulationPrimitives):
         else:
             self.drop_as.set_aborted()
 
-    def reset_cb(self):
-        self.reset()
-        return EmptyResponse()
+    def clear_octomap_cb(self, req):
+        res = TriggerResponse()
+        res.success = self.clear_octomap()
+        return res
 
-    def wait_cb(self):
-        self.wait()
-        return EmptyResponse()
+    def remove_object_cb(self, req):
+        res = StringResponse()
+        res.success = self.remove_object(req.data)
+        return res
+
+    def detach_object_cb(self, req):
+        res = StringResponse()
+        res.success = self.detach_object(req.data)
+        return res
+
+    def reset_cb(self, req):
+        res = TriggerResponse()
+        res.success = self.reset()
+        return res
+
+    def wait_cb(self, req):
+        res = FloatResponse()
+        res.success = self.wait(req.data)
+        return res
    
     def enable_camera_cb(self,req):
-        self.enable_camera(req.data)
-        return SetBoolResponse()
+        res = SetBoolResponse()
+        res.success = self.enable_camera(req.data)
+        return res
 
 if __name__ == "__main__":
     rospy.init_node('manipulation_action_server')
