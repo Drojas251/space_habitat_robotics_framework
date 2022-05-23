@@ -45,7 +45,7 @@ manipulation_client = ManipulationClient('/vx300s')
 
 app = Flask(__name__)
 
-@app.route('/move-to-pose', methods=['GET'])
+@app.route('/move-to-pose', methods=['PUT'])
 def move_to_pose():
     request_data = request.get_json()
 
@@ -64,11 +64,11 @@ def move_to_pose():
         return jsonify({'message': 'move_to_pose failed'})
 
 
-@app.route('/move-to-target', methods=['GET'])
+@app.route('/move-to-target', methods=['POST'])
 def move_to_target():
-    request_data = request.get_json()
+    req = request.form
 
-    target = request_data['target']
+    target = req.get("target")
 
     success = manipulation_client.move_to_target_client(target)
 
@@ -77,7 +77,7 @@ def move_to_target():
     else:
         return jsonify({'message': 'move_to_target failed'})
 
-@app.route('/move-gripper-to-target', methods=['GET'])
+@app.route('/move-gripper-to-target', methods=['PUT'])
 def move_gripper_to_target():
     request_data = request.get_json()
 
@@ -90,7 +90,7 @@ def move_gripper_to_target():
     else:
         return jsonify({'message': 'move_gripper_to_target failed'})
 
-@app.route('/move-gripper', methods=['GET'])
+@app.route('/move-gripper', methods=['PUT'])
 def move_gripper():
     request_data = request.get_json()
 
@@ -108,7 +108,7 @@ def move_gripper():
     else:
         return jsonify({'message': 'move_gripper failed'})
 
-@app.route('/pick', methods=['GET'])
+@app.route('/pick', methods=['PUT'])
 def pick():
     request_data = request.get_json()
 
@@ -120,7 +120,56 @@ def pick():
     if success:
         return jsonify({'message': 'success!'})
     else:
-        return jsonify({'message': 'move_to_target failed'})
+        return jsonify({'message': 'pick failed'})
+
+@app.route('/place', methods=['PUT'])
+def place():
+    request_data = request.get_json()
+
+    object_id = request_data['object_id']
+    try:
+        pose = get_pose_msg(request_data['pose'])
+    except:
+        return jsonify({'message': 'invalid pose'})
+
+    success = manipulation_client.place_client(object_id, pose)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'place failed'})
+
+@app.route('/add-object', methods=['PUT'])
+def add_object():
+    request_data = request.get_json()
+
+    type = request_data['type']
+    object_id = request_data['object_id']
+    try:
+        pose = get_pose_msg(request_data['pose'])
+    except:
+        return jsonify({'message': 'invalid pose'})
+    dimensions = request_data['dimensions']
+
+    success = manipulation_client.add_object_client(type, object_id, pose, dimensions)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'add_object failed'})
+
+@app.route('/remove-object', methods=['PUT'])
+def remove_object():
+    request_data = request.get_json()
+
+    object_id = request_data['object_id']
+
+    success = manipulation_client.remove_object_client(object_id)
+
+    if success:
+        return jsonify({'message': 'success!'})
+    else:
+        return jsonify({'message': 'remove_object failed'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

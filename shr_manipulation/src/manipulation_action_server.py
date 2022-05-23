@@ -6,7 +6,7 @@ from manipulation_primitives import ManipulationPrimitives
 import math
 
 from std_srvs.srv import SetBool, SetBoolResponse, Empty, EmptyResponse, Trigger, TriggerResponse
-from shr_interfaces.srv import String, StringResponse, Float, FloatResponse
+from shr_interfaces.srv import String, StringResponse, Float, FloatResponse, AddObject, AddObjectResponse
 
 from shr_interfaces.msg import \
     DropAction, DropFeedback, DropResult, \
@@ -81,6 +81,8 @@ class ManipulationActionServer(ManipulationPrimitives):
         self.wait_service = rospy.Service("wait", Float, self.wait_cb)
 
         self.enable_camera_service = rospy.Service("enable_camera", SetBool, self.enable_camera_cb)
+
+        self.add_object_service = rospy.Service("add_object", AddObject, self.add_object_cb)
 
     def move_to_pose_cb(self, goal):
         success = self.move_to_pose_msg(goal.pose)
@@ -166,6 +168,11 @@ class ManipulationActionServer(ManipulationPrimitives):
     def enable_camera_cb(self,req):
         res = SetBoolResponse()
         res.success = self.enable_camera(req.data)
+        return res
+
+    def add_object_cb(self, req):
+        res = AddObjectResponse()
+        res.success = self.add_object(req.type, req.object_id, req.pose, req.dimensions)
         return res
 
 if __name__ == "__main__":

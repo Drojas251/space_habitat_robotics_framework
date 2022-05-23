@@ -5,7 +5,7 @@ import actionlib
 from actionlib_msgs.msg import GoalStatus
 
 from std_srvs.srv import SetBool, SetBoolRequest, Empty, EmptyRequest, Trigger, TriggerRequest
-from shr_interfaces.srv import String, StringRequest, Float, FloatRequest
+from shr_interfaces.srv import String, StringRequest, Float, FloatRequest, AddObject, AddObjectRequest
 
 from shr_interfaces.msg import \
     DropAction, DropGoal, DropFeedback, DropResult, \
@@ -203,5 +203,91 @@ class ManipulationClient():
             return status
 
         rospy.loginfo("Pick succeeded")
+        status = True
+        return status
+
+    def place_client(self, object_id, pose):
+        status = False
+
+        client = actionlib.SimpleActionClient(f'{self.ns}/place', PlaceAction)
+
+        if not client.wait_for_server(rospy.Duration(2.0)):
+            rospy.logerr("Can't contact place action server");
+            status = False
+            return status
+
+        goal = PlaceGoal()
+        goal.object_id = object_id
+        goal.pose = pose
+        client.send_goal(goal)
+
+        client.wait_for_result()
+
+        if client.get_state() != GoalStatus.SUCCEEDED:
+            rospy.logerr("Place failed")
+            status = False
+            return status
+
+        rospy.loginfo("Place succeeded")
+        status = True
+        return status
+
+    def add_object_client(self, type, object_id, pose, dimensions):
+        status = False
+        try:
+            rospy.wait_for_service(f'{self.ns}/add_object', timeout=rospy.Duration(2.0))
+        except:
+            rospy.logerr("Can't contact add_object service")
+            status = False
+            return status
+
+        try:
+            add_object = rospy.ServiceProxy(f'{self.ns}/add_object', AddObject)
+            req = AddObjectRequest()
+            req.type = type
+            req.object_id = object_id
+            req.pose = pose
+            req.dimensions = dimensions
+            res = add_object(req)
+        except rospy.ServiceException as e:
+            rospy.logerr("add_object service call failed: %s"%e)
+            status = False
+            return status
+
+        if not res.success:
+            rospy.logerr("AddObject failed")
+            status = False
+            return status
+
+        rospy.loginfo("AddObject succeeded")
+        status = True
+        return status
+
+    def remove_object_client(self, object_id):
+        status = False
+
+        try:
+            rospy.wait_for_service(f'{self.ns}/remove_object', timeout=rospy.Duration(2.0))
+        except:
+            rospy.logerr("Can't contact remove_object service")
+            status = False
+            return status
+
+        try:
+            remove_object = rospy.ServiceProxy(f'{self.ns}/remove_object', String)
+            req = StringRequest()
+            req.data = object_id
+            res = remove_object(req)
+        except rospy.ServiceException as e:
+            rospy.logerr("remove_object service call failed: %s"%e)
+            status = False
+            return status
+
+        if not res.success:
+            rospy.logerr("RemoveObject failed")
+            status = False
+            return status
+
+        rospy.loginfo("RemoveObject succeeded")
         status = True
         return status

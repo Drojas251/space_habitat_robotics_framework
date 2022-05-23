@@ -34,6 +34,7 @@ class ManipulationPrimitives:
         self.finger_max_in = .025
         self.finger_max_out = .0285
         self.max_gripper_width = .08
+        self.world_frame = "world"
 
     def move_to_pose_msg(self, pose):
         # Moves to a defined Pose
@@ -363,3 +364,37 @@ class ManipulationPrimitives:
             status = False
         
         return status
+
+    def add_object(self, type, object_id, pose, dimensions):
+        status = False
+
+        pose_stamped = geometry_msgs.msg.PoseStamped()
+        pose_stamped.pose = pose
+        pose_stamped.header.frame_id = self.world_frame
+
+        try:
+            if type == 'box':
+                if len(dimensions) != 3:
+                    raise Exception("box dimensions wrong")
+
+                self.wait(0.1)
+                self.scene.add_box(object_id, pose_stamped, size=dimensions)
+                self.wait(0.1)
+            elif type == 'cylinder':
+                if len(dimensions) != 2:
+                    raise Exception("cylinder dimensions wrong")
+
+                self.wait(0.1)
+                h, r = dimensions
+                self.scene.add_cylinder(object_id, pose_stamped, h, r)
+                self.wait(0.1)
+            else:
+                raise Exception("Invalid type")
+            
+            status = True
+            return status
+
+        except Exception as e:
+            rospy.logerr(e)
+            status = False
+            return status            

@@ -7,3 +7,17 @@ git clone https://github.com/issaiass/realsense2_description # might not need th
 git clone https://github.com/Interbotix/interbotix_ros_core.git
 git clone https://github.com/Interbotix/interbotix_ros_manipulators.git -b noetic
 git clone https://github.com/Interbotix/interbotix_ros_toolboxes.git
+
+
+rm \
+./src/interbotix_ros_manipulators/interbotix_ros_uxarms/CATKIN_IGNORE \
+./src/interbotix_ros_manipulators/interbotix_ros_xsarms/interbotix_xsarm_perception/CATKIN_IGNORE \
+./src/interbotix_ros_core/interbotix_ros_uxarms/CATKIN_IGNORE \
+./src/interbotix_ros_core/interbotix_ros_xseries/CATKIN_IGNORE \
+./src/interbotix_ros_core/interbotix_ros_xseries/dynamixel_workbench_toolbox/examples/CATKIN_IGNORE \
+./src/DynamixelSDK/python/CATKIN_IGNORE \
+./src/interbotix_ros_toolboxes/interbotix_xs_toolbox/CATKIN_IGNORE \
+./src/interbotix_ros_toolboxes/interbotix_ux_toolbox/CATKIN_IGNORE \
+./src/interbotix_ros_toolboxes/interbotix_common_toolbox/interbotix_moveit_interface/CATKIN_IGNORE \
+./src/interbotix_ros_toolboxes/interbotix_perception_toolbox/CATKIN_IGNORE \
+./src/interbotix_ros_toolboxes/interbotix_rpi_toolbox/CATKIN_IGNORE \

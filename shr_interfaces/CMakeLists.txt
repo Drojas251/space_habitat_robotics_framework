@@ -64,6 +64,7 @@ add_service_files(
   Grasps.srv
   String.srv
   Float.srv
+  AddObject.srv
 )
 
 # Generate actions in the 'action' folder
