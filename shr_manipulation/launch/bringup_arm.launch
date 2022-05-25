@@ -14,9 +14,9 @@
 	
 	<include file="$(find interbotix_xsarm_moveit)/launch/xsarm_moveit.launch" >
 	<arg name="robot_model" value="vx300s"/>
-	<arg name="use_actual" value="true"/>
+	<!-- <arg name="use_actual" value="true"/> -->
 	<!-- <arg name="use_gazebo" value="true"/> -->
-	<!-- <arg name="use_fake" value="true"/> -->
+	<arg name="use_fake" value="true"/>
 	<arg name="dof" value="6"/>
 	</include>
 
@@ -25,7 +25,8 @@
 
     <node pkg="shr_vision" type="object_adder.py" name="object_adder" ns="/vx300s"/>
 	<node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" ns="/vx300s" output="screen"/>
-	<node pkg="shr_manipulation" type="grasp_planner.py" name="grasp_planner" ns="/vx300s" output="screen"/>
+	<node pkg="shr_manipulation" type="grasp_planner.py" name="grasp_planner" ns="/vx300s"/>
+	<node pkg="shr_behavior_trees" type="behavior_tree_server" name="behavior_tree_server" ns="/vx300s" output="screen"/>
 
 
 </launch>

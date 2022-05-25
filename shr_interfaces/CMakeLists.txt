@@ -76,6 +76,7 @@ add_action_files(
   MoveToTarget.action
   Pick.action
   Place.action
+  ExecuteBehaviorTree.action
 )
 
 # Generate added messages and services with any dependencies listed here

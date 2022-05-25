@@ -3,7 +3,9 @@
 import rospy
 import actionlib
 from actionlib_msgs.msg import GoalStatus
+from shape_msgs.msg import SolidPrimitive
 
+from moveit_msgs.srv import GetPlanningScene, GetPlanningSceneRequest
 from std_srvs.srv import SetBool, SetBoolRequest, Empty, EmptyRequest, Trigger, TriggerRequest
 from shr_interfaces.srv import String, StringRequest, Float, FloatRequest, AddObject, AddObjectRequest
 
@@ -13,72 +15,12 @@ from shr_interfaces.msg import \
     MoveToPoseAction, MoveToPoseGoal, MoveToPoseFeedback, MoveToPoseResult, \
     MoveToTargetAction, MoveToTargetGoal, MoveToTargetFeedback, MoveToTargetResult, \
     PickAction, PickGoal, PickFeedback, PickResult, \
-    PlaceAction, PlaceGoal, PlaceFeedback, PlaceResult
+    PlaceAction, PlaceGoal, PlaceFeedback, PlaceResult, \
+    ExecuteBehaviorTreeAction, ExecuteBehaviorTreeGoal, ExecuteBehaviorTreeFeedback, ExecuteBehaviorTreeResult
 
 class ManipulationClient():
     def __init__(self, ns):     
         self.ns = ns
-        # self.move_to_pose_as = actionlib.SimpleActionServer(
-        #     'move_to_pose', 
-        #     MoveToPoseAction, 
-        #     execute_cb=self.move_to_pose_cb, 
-        #     auto_start=False
-        # )
-        # self.move_to_pose_as.start()
-        # self.move_to_target_as = actionlib.SimpleActionServer(
-        #     'move_to_target', 
-        #     MoveToTargetAction, 
-        #     execute_cb=self.move_to_target_cb, 
-        #     auto_start=False
-        # )
-        # self.move_to_target_as.start()
-        # self.move_gripper_as = actionlib.SimpleActionServer(
-        #     'move_gripper', 
-        #     MoveGripperAction, 
-        #     execute_cb=self.move_gripper_cb, 
-        #     auto_start=False
-        # )
-        # self.move_gripper_as.start()
-        # self.move_gripper_to_target_as = actionlib.SimpleActionServer(
-        #     'move_gripper_to_target', 
-        #     MoveToTargetAction, 
-        #     execute_cb=self.move_gripper_to_target_cb, 
-        #     auto_start=False
-        # )
-        # self.move_gripper_to_target_as.start()
-        # self.pick_as = actionlib.SimpleActionServer(
-        #     'pick', 
-        #     PickAction, 
-        #     execute_cb=self.pick_cb, 
-        #     auto_start=False
-        # )
-        # self.pick_as.start()
-        # self.place_as = actionlib.SimpleActionServer(
-        #     'place_object', 
-        #     PlaceAction, 
-        #     execute_cb=self.place_cb, 
-        #     auto_start=False
-        # )
-        # self.place_as.start()
-        # self.drop_as = actionlib.SimpleActionServer(
-        #     'drop', 
-        #     DropAction, 
-        #     execute_cb=self.drop_cb, 
-        #     auto_start=False
-        # )
-        # self.drop_as.start()
-
-        # self.clear_octomap_service = rospy.Service("clear_octomap_node", Trigger, self.clear_octomap_cb)
-
-        # self.remove_object_service = rospy.Service("remove_object", String, self.remove_object_cb)
-
-        # self.detach_object_service = rospy.Service("detach_object", String, self.detach_object_cb)
-
-        # self.reset_service = rospy.Service("reset", Empty, self.reset_cb)
-
-        # self.wait_service = rospy.Service("wait", Float, self.wait_cb)
-
-        # self.enable_camera_service = rospy.Service("enable_camera", SetBool, self.enable_camera_cb)
 
     def move_to_pose_client(self, pose):
         status = False
@@ -291,3 +233,78 @@ class ManipulationClient():
         rospy.loginfo("RemoveObject succeeded")
         status = True
         return status
+
+    def get_scene_objects(self):
+        status = False
+
+        try:
+            rospy.wait_for_service(f'{self.ns}/get_planning_scene', timeout=rospy.Duration(2.0))
+        except:
+            rospy.logerr("Can't contact get_planning_scene service")
+            status = False
+            return [], status
+
+        try:
+            get_planning_scene = rospy.ServiceProxy(f'{self.ns}/get_planning_scene', GetPlanningScene)
+            res = get_planning_scene(GetPlanningSceneRequest())
+        except rospy.ServiceException as e:
+            rospy.logerr("get_planning_scene service call failed: %s"%e)
+            status = False
+            return [], status
+
+        scene_objects = []
+        for obj in res.scene.world.collision_objects:
+            if len(obj.primitives) == 1:
+                obj_type = {
+                    SolidPrimitive.BOX: 'box',
+                    SolidPrimitive.CYLINDER: 'cylinder'
+                }
+
+                pose = [
+                    obj.pose.position.x,
+                    obj.pose.position.y,
+                    obj.pose.position.z,
+                    obj.pose.orientation.x,
+                    obj.pose.orientation.y,
+                    obj.pose.orientation.z,
+                    obj.pose.orientation.w
+                ]
+
+                scene_objects.append(
+                    {
+                        'object_id': obj.id,
+                        'type': obj_type[obj.primitives[0].type],
+                        'dimensions': obj.primitives[0].dimensions,
+                        'pose': pose
+                    }
+                )
+
+        rospy.loginfo("get_scene_objects succeeded")
+        status = True
+        return scene_objects, status
+
+    def execute_behavior_tree_client(self, xml):
+        status = False
+
+        client = actionlib.SimpleActionClient(f'{self.ns}/execute_behavior_tree', ExecuteBehaviorTreeAction)
+
+        if not client.wait_for_server(rospy.Duration(2.0)):
+            rospy.logerr("Can't contact execute_behavior_tree action server")
+            status = False
+            return status
+
+        goal = ExecuteBehaviorTreeGoal()
+        goal.xml = xml
+        client.send_goal(goal)
+
+        client.wait_for_result()
+
+        if client.get_state() != GoalStatus.SUCCEEDED:
+            rospy.logerr("ExecuteBehaviorTree failed")
+            status = False
+            return status
+
+        rospy.loginfo("ExecuteBehaviorTree succeeded")
+        status = True
+        return status
+

@@ -4,7 +4,7 @@ cube:
   type: "box"
   dimensions: [0.0508, 0.0508, 0.060325]
   transform: [0, 0, -0.03, 0, 0, 0, 0]
-  axis_constraints: []
+  axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
   retreat_vector: [0, 0, 1]
 box: 
   frame_id: "1"

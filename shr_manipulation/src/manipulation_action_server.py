@@ -76,7 +76,7 @@ class ManipulationActionServer(ManipulationPrimitives):
 
         self.detach_object_service = rospy.Service("detach_object", String, self.detach_object_cb)
 
-        self.reset_service = rospy.Service("reset", Empty, self.reset_cb)
+        self.reset_service = rospy.Service("reset", Trigger, self.reset_cb)
 
         self.wait_service = rospy.Service("wait", Float, self.wait_cb)
 
@@ -172,7 +172,7 @@ class ManipulationActionServer(ManipulationPrimitives):
 
     def add_object_cb(self, req):
         res = AddObjectResponse()
-        res.success = self.add_object(req.type, req.object_id, req.pose, req.dimensions)
+        res.success = self.add_object(req.object_id, req.pose)
         return res
 
 if __name__ == "__main__":

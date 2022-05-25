@@ -1,7 +1,5 @@
-string type
 string object_id
 geometry_msgs/Pose pose 
-float32[] dimensions
 ---
 bool success   # indicate successful run of triggered service
 string message # informational, e.g. for error messages

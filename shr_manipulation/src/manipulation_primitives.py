@@ -3,6 +3,7 @@
 import rospy
 import moveit_commander
 import numpy as np
+import yaml
 
 from tf.transformations import quaternion_from_euler
 import math
@@ -16,6 +17,8 @@ from topic_tools.srv import MuxSelect, MuxSelectRequest
 
 
 tau = 2 * math.pi 
+stream = open(rospy.get_param("/object_db"), 'r')
+objects = yaml.safe_load(stream)
 
 
 class ManipulationPrimitives:
@@ -266,7 +269,8 @@ class ManipulationPrimitives:
             self.wait(1)
             self.clear_octomap()
             status = True
-        except:
+        except Exception as e:
+            rospy.logerr('Reset failed: %s' % e)
             status = False
 
         return status        
@@ -365,12 +369,15 @@ class ManipulationPrimitives:
         
         return status
 
-    def add_object(self, type, object_id, pose, dimensions):
+    def add_object(self, object_id, pose):
         status = False
 
         pose_stamped = geometry_msgs.msg.PoseStamped()
         pose_stamped.pose = pose
         pose_stamped.header.frame_id = self.world_frame
+        
+        dimensions = objects[object_id]['dimensions']
+        type = objects[object_id]['type']
 
         try:
             if type == 'box':
@@ -397,4 +404,4 @@ class ManipulationPrimitives:
         except Exception as e:
             rospy.logerr(e)
             status = False
-            return status            
+            return status     
