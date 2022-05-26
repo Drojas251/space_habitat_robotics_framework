@@ -1,5 +1,8 @@
 <launch>
 
+	<param name="server_cert" value="$(find shr_http_server)/key/cert.pem" />
+	<param name="server_key" value="$(find shr_http_server)/key/key.pem" />
+
 	<node pkg="shr_http_server" type="http_server.py" name="http_server" output="screen"/>
 
 

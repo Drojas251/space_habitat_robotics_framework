@@ -244,4 +244,7 @@ def test():
         return jsonify({'message': 'failed!'})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    cert = rospy.get_param("/server_cert")
+    key = rospy.get_param("/server_key")
+
+    app.run(host='0.0.0.0', port=8000, ssl_context=(cert, key), debug=True)
