@@ -254,34 +254,33 @@ class ManipulationClient():
 
         scene_objects = []
         for obj in res.scene.world.collision_objects:
-            if len(obj.primitives) == 1:
+            if len(obj.primitives) == 1 and obj.id == 'cube': # modify to send only cube
                 obj_type = {
                     SolidPrimitive.BOX: 'box',
                     SolidPrimitive.CYLINDER: 'cylinder'
                 }
 
-                pose = [
-                    obj.pose.position.x,
-                    obj.pose.position.y,
-                    obj.pose.position.z,
-                    obj.pose.orientation.x,
-                    obj.pose.orientation.y,
-                    obj.pose.orientation.z,
-                    obj.pose.orientation.w
-                ]
+                type = obj_type[obj.primitives[0].type]
 
                 scene_objects.append(
                     {
                         'object_id': obj.id,
-                        'type': obj_type[obj.primitives[0].type],
-                        'dimensions': obj.primitives[0].dimensions,
-                        'pose': pose
+                        'posX' : obj.pose.position.x,
+                        'posY' : obj.pose.position.y,
+                        'posZ' : obj.pose.position.z,
+                        'rotX' : obj.pose.orientation.x,
+                        'rotY' : obj.pose.orientation.y,
+                        'rotZ' : obj.pose.orientation.z,
+                        'rotW' : obj.pose.orientation.w,
+                        'boxX' : obj.primitives[0].dimensions[0],
+                        'boxY' : obj.primitives[0].dimensions[1],
+                        'boxZ' : obj.primitives[0].dimensions[2]
                     }
                 )
 
         rospy.loginfo("get_scene_objects succeeded")
         status = True
-        return scene_objects, status
+        return scene_objects[0], status
 
     def execute_behavior_tree_client(self, xml):
         status = False

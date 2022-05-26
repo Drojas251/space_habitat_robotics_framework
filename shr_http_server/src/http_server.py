@@ -181,17 +181,20 @@ def get_scene():
 
 @app.route('/move-object', methods=['POST'])
 def move_object():
-    object_id = req = request.get_json()
+    print(request.data)
+    print()
+    print(request.headers)
+    req = request.get_json()
 
     object_id = req['id']
     pose_str = '%s;%s;%s;%s;%s;%s;%s' % (
-        req['posX'],
-        req['posY'],
-        req['posZ'],
-        req['rotX'],
-        req['rotY'],
-        req['rotZ'],
-        req['rotW']
+        req['newPosX'],
+        req['newPosY'],
+        req['newPosZ'],
+        req['newRotX'],
+        req['newRotY'],
+        req['newRotZ'],
+        req['newRotW']
     )
 
 
@@ -199,7 +202,8 @@ def move_object():
     <root main_tree_to_execute = "MainTree" >
         <BehaviorTree ID="MainTree">
             <Sequence name="root_sequence">
-                <ClearOctomap />
+                <DetachObject object_id="{object_id}"/>
+                <RemoveObject object_id="{object_id}"/>
                 <EnableCamera enable="true"/>
                 <MoveToTarget target="inspect_ground"/>
                 <Wait sec="2" />
@@ -211,7 +215,11 @@ def move_object():
     </root>
     """
 
-    success = manipulation_client.execute_behavior_tree_client(xml)
+    rospy.loginfo(xml)
+
+    success = True
+
+    #success = manipulation_client.execute_behavior_tree_client(xml)
 
     if success:
         return jsonify({'message': 'success!'})
