@@ -7,6 +7,7 @@ from shape_msgs.msg import SolidPrimitive
 import geometry_msgs.msg
 from tf.transformations import quaternion_from_euler
 import tf2_geometry_msgs
+import tf2_ros
 
 
 from moveit_msgs.srv import GetPlanningScene, GetPlanningSceneRequest

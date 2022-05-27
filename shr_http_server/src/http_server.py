@@ -4,10 +4,11 @@ import os
 import rospy
 import threading
 import json
+import tf2_ros
 
 from manipulation_client import ManipulationClient
 from tf.transformations import quaternion_from_euler
-from geometry_msgs.msg import Pose, Quaternion
+from geometry_msgs.msg import Pose, Quaternion, TransformStamped
 
 from flask import Flask, request, jsonify, json
 from werkzeug.exceptions import HTTPException
@@ -197,16 +198,26 @@ def move_object():
     pose.orientation.z = float(req['newRotZ'].replace(',', '.'))
     pose.orientation.w = float(req['newRotW'].replace(',', '.'))
 
-    pose = manipulation_client.transform_pose(pose, "ipad_camera", "world")
+    # pose = manipulation_client.transform_pose(pose, "ipad_camera", "world")
+
+    br = tf2_ros.StaticTransformBroadcaster()
+    t = TransformStamped()
+    t.header.frame_id = "world"
+    t.child_frame_id = "test"
+    t.transform.translation.x = pose.position.x
+    t.transform.translation.y = pose.position.y
+    t.transform.translation.z = pose.position.z
+    t.transform.rotation = pose.orientation
+    br.sendTransform(t)
 
     pose_str = '%s;%s;%s;%s;%s;%s;%s' % (
         pose.position.x,
         pose.position.y,
         pose.position.z,
-        0,#pose.orientation.x,
-        0,#pose.orientation.y,
-        0,#pose.orientation.z,
-        1#pose.orientation.w
+        pose.orientation.x,
+        pose.orientation.y,
+        pose.orientation.z,
+        pose.orientation.w
     )
 
 
@@ -215,9 +226,7 @@ def move_object():
         <BehaviorTree ID="MainTree">
             <Sequence name="root_sequence">
                 <Pick object_id="{object_id}" />
-                <MoveToPose pose="{pose_str}" />
-                <MoveGripperToTarget target="Open"/>
-                <MoveToTarget target="inspect_ground"/>
+                <Place object_id="{object_id}" pose="{pose_str}" />
             </Sequence>
         </BehaviorTree>
     </root>
