@@ -3,7 +3,10 @@
 	<param name="server_cert" value="$(find shr_http_server)/key/cert.pem" />
 	<param name="server_key" value="$(find shr_http_server)/key/key.pem" />
 
+	<node pkg="shr_http_server" type="transform_server.py" name="transform_server" output="screen"/>
 	<node pkg="shr_http_server" type="http_server.py" name="http_server" output="screen"/>
+
+	<node pkg="tf" type="static_transform_publisher" name="transform_ipadcam_to_world" args="0 1.00568125 0.168275 -1.5708 0 -1.5708  /world /ipad_camera  100"/>
 
 
 </launch>

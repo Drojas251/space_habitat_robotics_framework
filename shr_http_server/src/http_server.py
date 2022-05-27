@@ -187,14 +187,26 @@ def move_object():
     req = request.get_json()
 
     object_id = req['id']
+
+    pose = Pose()
+    pose.position.x = float(req['newPosX'].replace(',', '.'))
+    pose.position.y = -float(req['newPosY'].replace(',', '.'))
+    pose.position.z = float(req['newPosZ'].replace(',', '.'))
+    pose.orientation.x = float(req['newRotX'].replace(',', '.'))
+    pose.orientation.y = float(req['newRotY'].replace(',', '.'))
+    pose.orientation.z = float(req['newRotZ'].replace(',', '.'))
+    pose.orientation.w = float(req['newRotW'].replace(',', '.'))
+
+    pose = manipulation_client.transform_pose(pose, "ipad_camera", "world")
+
     pose_str = '%s;%s;%s;%s;%s;%s;%s' % (
-        req['newPosX'],
-        req['newPosY'],
-        req['newPosZ'],
-        req['newRotX'],
-        req['newRotY'],
-        req['newRotZ'],
-        req['newRotW']
+        pose.position.x,
+        pose.position.y,
+        pose.position.z,
+        0,#pose.orientation.x,
+        0,#pose.orientation.y,
+        0,#pose.orientation.z,
+        1#pose.orientation.w
     )
 
 
@@ -202,36 +214,32 @@ def move_object():
     <root main_tree_to_execute = "MainTree" >
         <BehaviorTree ID="MainTree">
             <Sequence name="root_sequence">
-                <DetachObject object_id="{object_id}"/>
-                <RemoveObject object_id="{object_id}"/>
-                <EnableCamera enable="true"/>
-                <MoveToTarget target="inspect_ground"/>
-                <Wait sec="2" />
                 <Pick object_id="{object_id}" />
-                <Place object_id="{object_id}" pose="{pose_str}"/>
+                <MoveToPose pose="{pose_str}" />
+                <MoveGripperToTarget target="Open"/>
                 <MoveToTarget target="inspect_ground"/>
             </Sequence>
         </BehaviorTree>
     </root>
-    """
+     """
 
     rospy.loginfo(xml)
 
-    success = True
-
-    #success = manipulation_client.execute_behavior_tree_client(xml)
+    success = manipulation_client.execute_behavior_tree_client(xml)
 
     if success:
         return jsonify({'message': 'success!'})
     else:
         return jsonify({'message': 'get_scene failed'})
 
-@app.route('/test', methods=['POST'])
+@app.route('/test', methods=['GET'])
 def test():
     xml = """
     <root main_tree_to_execute = "MainTree" >
         <BehaviorTree ID="MainTree">
-            <AddObject object_id="cube" pose="0.3;0;0.1;0;0;0"/>
+            <Sequence name="root_sequence">
+                <Place object_id="cube" pose="0.3;0;0.2;0;0;1.5"/>
+            </Sequence>
         </BehaviorTree>
     </root>
     """
@@ -244,7 +252,7 @@ def test():
         return jsonify({'message': 'failed!'})
 
 if __name__ == '__main__':
-    cert = rospy.get_param("/server_cert")
-    key = rospy.get_param("/server_key")
+    app.run(host='0.0.0.0', port=8000,  debug=True)
 
-    app.run(host='0.0.0.0', port=8000, ssl_context=(cert, key), debug=True)
+
+# [ERROR] [1653618175.008503218]: interbotix_arm/interbotix_arm[RRTConnect]: Motion planning start tree could not be initialized!

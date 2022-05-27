@@ -4,10 +4,14 @@ import rospy
 import actionlib
 from actionlib_msgs.msg import GoalStatus
 from shape_msgs.msg import SolidPrimitive
+import geometry_msgs.msg
+from tf.transformations import quaternion_from_euler
+import tf2_geometry_msgs
+
 
 from moveit_msgs.srv import GetPlanningScene, GetPlanningSceneRequest
 from std_srvs.srv import SetBool, SetBoolRequest, Empty, EmptyRequest, Trigger, TriggerRequest
-from shr_interfaces.srv import String, StringRequest, Float, FloatRequest, AddObject, AddObjectRequest
+from shr_interfaces.srv import String, StringRequest, Float, FloatRequest, AddObject, AddObjectRequest, Transform, TransformRequest
 
 from shr_interfaces.msg import \
     DropAction, DropGoal, DropFeedback, DropResult, \
@@ -234,6 +238,21 @@ class ManipulationClient():
         status = True
         return status
 
+    def transform_pose(self, pose, from_frame, to_frame):
+        rospy.wait_for_service('transform_pose')
+        try:
+            transform_pose = rospy.ServiceProxy('transform_pose', Transform)
+            req = TransformRequest()
+            req.pose = pose
+            req.from_frame = from_frame
+            req.to_frame = to_frame
+            pose = transform_pose(req).pose
+        except rospy.ServiceException as e:
+            print("Service call failed: %s"%e)
+
+        return pose
+
+
     def get_scene_objects(self):
         status = False
 
@@ -262,16 +281,18 @@ class ManipulationClient():
 
                 type = obj_type[obj.primitives[0].type]
 
+                pose = self.transform_pose(obj.pose, "world", "ipad_camera")
+
                 scene_objects.append(
                     {
                         'object_id': obj.id,
-                        'posX' : obj.pose.position.x,
-                        'posY' : obj.pose.position.y,
-                        'posZ' : obj.pose.position.z,
-                        'rotX' : obj.pose.orientation.x,
-                        'rotY' : obj.pose.orientation.y,
-                        'rotZ' : obj.pose.orientation.z,
-                        'rotW' : obj.pose.orientation.w,
+                        'posX' : pose.position.x,
+                        'posY' : -pose.position.y,
+                        'posZ' : pose.position.z,
+                        'rotX' : pose.orientation.x,
+                        'rotY' : pose.orientation.y,
+                        'rotZ' : pose.orientation.z,
+                        'rotW' : pose.orientation.w,
                         'boxX' : obj.primitives[0].dimensions[0],
                         'boxY' : obj.primitives[0].dimensions[1],
                         'boxZ' : obj.primitives[0].dimensions[2]

@@ -11,7 +11,7 @@ box:
   type: "box"
   dimensions: [0.13, 0.05, 0.035]
   transform: [0, 0, -0.0175, 0, 0, 0, 0]
-  axis_constraints: []
+  axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
   retreat_vector: [0, 0, 1]
 cylinder: 
   frame_id: "0"

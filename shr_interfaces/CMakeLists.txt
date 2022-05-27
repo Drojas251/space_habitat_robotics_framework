@@ -65,6 +65,7 @@ add_service_files(
   String.srv
   Float.srv
   AddObject.srv
+  Transform.srv
 )
 
 # Generate actions in the 'action' folder
