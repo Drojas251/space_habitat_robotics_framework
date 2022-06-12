@@ -1,0 +1,4 @@
+<launch>	
+	<include file="$(find interbotix_xsarm_joy)/launch/xsarm_joy.launch" >
+	</include>
+</launch>

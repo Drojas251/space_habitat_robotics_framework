@@ -1,0 +1,6 @@
+<launch>
+
+
+	<node pkg="shr_http_server" type="control.py" name="semiautomated_control" output="screen"/>
+
+</launch>
