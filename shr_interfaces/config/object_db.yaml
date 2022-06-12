@@ -1,22 +1,54 @@
 ---
-cube: 
-  frame_id: "3"
+small: 
+  frame_id: "0"
   type: "box"
-  dimensions: [0.0508, 0.0508, 0.060325]
-  transform: [0, 0, -0.03, 0, 0, 0, 0]
+  dimensions: [0.0508, 0.0508, 0.0245]
+  transform: [0, 0, -0.01225, 0, 0, 0, 1]
   axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
   retreat_vector: [0, 0, 1]
-box: 
+
+medium: 
+  frame_id: "2"
+  type: "box"
+  dimensions: [0.0508, 0.0508, 0.0508]
+  transform: [0, 0, -0.02504, 0, 0, 0, 1]
+  axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
+  retreat_vector: [0, 0, 1]
+
+large: 
   frame_id: "1"
   type: "box"
-  dimensions: [0.13, 0.05, 0.035]
-  transform: [0, 0, -0.0175, 0, 0, 0, 0]
+  dimensions: [0.0508, 0.0508, 0.0762]
+  transform: [0, 0, -0.038, 0, 0, 0, 1]
   axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
   retreat_vector: [0, 0, 1]
-cylinder: 
-  frame_id: "0"
-  type: "cylinder"
-  dimensions: [0.085, 0.03175]
-  transform: [0, 0, -0.0425, 0, 0, 0, 0]
-  axis_constraints: []
-  retreat_vector: [0, 0, 1]
+
+# cube: 
+#   frame_id: "3"
+#   type: "box"
+#   dimensions: [0.0508, 0.0508, 0.060325]
+#   transform: [0, 0, -0.03, 0, 0, 0, 1]
+#   axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
+#   retreat_vector: [0, 0, 1]
+# box: 
+#   frame_id: "1"
+#   type: "box"
+#   dimensions: [0.13, 0.05, 0.035]
+#   transform: [0, 0, -0.0175, 0, 0, 0, 1]
+#   axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
+#   retreat_vector: [0, 0, 1]
+# cylinder: 
+#   frame_id: "0"
+#   type: "cylinder"
+#   dimensions: [0.085, 0.03175]
+#   transform: [0, 0, -0.0425, 0, 0, 0, 1]
+#   axis_constraints: []
+#   retreat_vector: [0, 0, 1]
+
+# box: 
+#   frame_id: "2"
+#   type: "box"
+#   dimensions: [0.045,0.045,0.045]
+#   transform: [0, 0, -0.0225, 0, 0, 0, 1]
+#   axis_constraints: ["+x", "-x", "+y", "-y", "-z"]
+#   retreat_vector: [0, 0, 1]

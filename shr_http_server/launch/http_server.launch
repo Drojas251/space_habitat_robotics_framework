@@ -6,7 +6,7 @@
 	<node pkg="shr_http_server" type="transform_server.py" name="transform_server" output="screen"/>
 	<node pkg="shr_http_server" type="http_server.py" name="http_server" output="screen"/>
 
-	<node pkg="tf" type="static_transform_publisher" name="transform_ipadcam_to_world" args="0 1.00568125 0.168275 -1.5708 0 -1.5708  /world /ipad_camera  100"/>
+	<node pkg="tf" type="static_transform_publisher" name="transform_ipadcam_to_world" args="0.6810375 -0.104648 0.1651 1.5708 0 -1.5708  /world /ipad_camera  100"/>
 
-
+<!-- 0.6810375 -0.104648 0.1651 -->
 </launch>

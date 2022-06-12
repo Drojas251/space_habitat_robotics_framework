@@ -4,7 +4,8 @@
 	<node pkg="topic_tools" type="mux" name="mux_image_rect" args="/camera/color/sel_image_rect /camera/color/image_rect none mux:=mux_image_rect"/>
 
 	<include file="$(find realsense2_camera)/launch/rs_camera.launch" >
-	<arg name="filters" value="pointcloud"/>
+    	<arg name="filters" value="pointcloud"/>
+
 	</include>
 
 	<node pkg="image_proc" type="image_proc" name="image_proc" ns="camera/color"/>
@@ -23,7 +24,7 @@
 	<param name="object_db" value="$(find shr_interfaces)/config/object_db.yaml" />
 	<param name="gripper" value="$(find shr_interfaces)/config/gripper.yaml" />
 
-    <node pkg="shr_vision" type="object_adder.py" name="object_adder" ns="/vx300s"/>
+    <node pkg="shr_vision" type="flat_object_adder.py" name="flat_object_adder" ns="/vx300s"/>
 	<node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" ns="/vx300s" output="screen"/>
 	<node pkg="shr_manipulation" type="grasp_planner.py" name="grasp_planner" ns="/vx300s"/>
 	<node pkg="shr_behavior_trees" type="behavior_tree_server" name="behavior_tree_server" ns="/vx300s" output="screen"/>

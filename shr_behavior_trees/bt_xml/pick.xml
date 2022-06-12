@@ -1,16 +1,42 @@
 <root main_tree_to_execute = "MainTree">
     <BehaviorTree ID="MainTree">
         <Sequence>
-            <SetBlackboard output_key="id_1" value="0" />
+            
             <Fallback>
                 <Sequence>
-                    <SubTree ID="MoveRobot" target="id_1" />
+                    <SubTree ID="survey"/>
+                    <Pick object_id="cube"/>
+                    <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/>
+                    <MoveToTarget target="inspect_ground"/>
+                    <Pick object_id="box" />
+                    <Place object_id="box" pose="0.3;0;0.1;0;0;0"/>
+                    <MoveToTarget target="inspect_ground"/>
+                    <SubTree ID="survey"/>
+                    <Pick object_id="cube"/>
+                    <Place object_id="cube" pose="0.3;0.2;0.1;0;0;0"/>
+                    <MoveToTarget target="inspect_ground"/>
+                    
                 </Sequence>
             </Fallback>
         </Sequence>
     </BehaviorTree>
 
-    <BehaviorTree ID="MoveRobot">
+
+
+    <BehaviorTree ID="survey">
+        <Sequence name="survey_sequence">
+            <Reset/>
+            <MoveToTarget target="step1"/>     
+            <MoveToTarget target="step2"/>     
+            <MoveToTarget target="step3"/>     
+            <MoveToTarget target="step4"/>     
+            <MoveToTarget target="step5"/>     
+            <MoveToTarget target="inspect_ground"/>          
+        </Sequence>
+    </BehaviorTree>
+
+
+    <!-- <BehaviorTree ID="MoveRobot">
         <Sequence name="SetGoal">
             <AddObject object_id="cube" pose="0.3;0;0.1;0;0;0"/>
             <ClearOctomap/>
@@ -23,12 +49,14 @@
             <Pick object_id="cube"/>
             <Place object_id="cube" pose="0.4;0;0.1;0;0;0"/>
             <RemoveObject object_id="cube"/>
-            <MoveGripper gripper_width="0.05" />  <!-- GRIPPER_POSITION_BROKEN -->
+            <MoveGripper gripper_width="0.05" />  
             <MoveToPose pose="0.2;0;0.5;0;0;0"/>
             
             <Reset/>
             
             
         </Sequence>
-    </BehaviorTree>
+    </BehaviorTree> -->
+
+
 </root>

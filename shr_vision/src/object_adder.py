@@ -1,7 +1,6 @@
 #! /usr/bin/env python3
 
 import rospy
-import tf2_ros
 import geometry_msgs.msg
 import moveit_commander
 import yaml
@@ -12,8 +11,6 @@ objects = yaml.safe_load(stream)
 class ObjectAdder():
     def __init__(self):
         rospy.init_node('object_adder')
-        self.tfBuffer = tf2_ros.Buffer()
-        self.listener = tf2_ros.TransformListener(self.tfBuffer)
         self.scene = moveit_commander.PlanningSceneInterface()
         self.world_frame = "world"
 
@@ -23,11 +20,6 @@ class ObjectAdder():
         while not rospy.is_shutdown():
             for id in objects:
                 object = objects[id]
-
-                try:
-                    trans = self.tfBuffer.lookup_transform(object['frame_id'], self.world_frame, rospy.Time())
-                except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException):
-                    continue
 
                 pose = geometry_msgs.msg.PoseStamped()
                 pose.header.frame_id = object['frame_id']
