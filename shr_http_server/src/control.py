@@ -76,7 +76,6 @@ if __name__ == '__main__':
                     <MoveGripperToTarget target="Open"/>
                     <DetachObject object_id="{cur_obj}"/>
                     <MoveToTarget target="inspect_ground"/>
-                    <RemoveObject object_id="{cur_obj}"/>
                     <EnableCamera enable="true"/>
                 </Sequence>
             </BehaviorTree>
@@ -91,16 +90,16 @@ if __name__ == '__main__':
     top = tkinter.Tk()
 
     s = tkinter.Button(top, text ="Pick small", command = small_cb)
-    s.pack(pady=8, padx=16)
+    s.pack(pady=16, padx=16)
 
     m = tkinter.Button(top, text ="Pick medium", command = medium_cb)
-    m.pack(pady=8, padx=16)
+    m.pack(pady=16, padx=16)
 
     l = tkinter.Button(top, text ="Pick large", command = large_cb)
-    l.pack(pady=8, padx=16)
+    l.pack(pady=16, padx=16)
 
     d = tkinter.Button(top, text ="Drop object", command = drop_cb)
-    d.pack(pady=8, padx=16)
+    d.pack(pady=16, padx=16)
 
     top.mainloop()
 

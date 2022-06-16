@@ -461,8 +461,8 @@ class GraspPlanner():
 
         grasp.pre_grasp_approach.direction.header.frame_id = "vx300s/ee_gripper_link"
         grasp.pre_grasp_approach.direction.vector.x = 0.5
-        grasp.pre_grasp_approach.min_distance = self.finger_max_in + self.finger_max_out + 0.05
-        grasp.pre_grasp_approach.desired_distance = 0.1 + self.finger_max_in + self.finger_max_out
+        grasp.pre_grasp_approach.min_distance = self.finger_max_in + self.finger_max_out + 0.06
+        grasp.pre_grasp_approach.desired_distance = 0.15 + self.finger_max_in + self.finger_max_out
 
         retreat_vectors = {
             '+x':[.5,0,0],
