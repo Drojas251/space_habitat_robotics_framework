@@ -44,7 +44,7 @@ class ObjectAdder():
                 pose = self.transform_pose(pose, object['frame_id'], 'world')
                 pose = self.flatten_pose(pose)
 
-                pose.position.z = 0.015 + object['dimensions'][2] / 2
+                pose.position.z = 0.0235 + object['dimensions'][2] / 2
 
                 pose_stamped = geometry_msgs.msg.PoseStamped()
                 pose_stamped.header.frame_id = 'world'

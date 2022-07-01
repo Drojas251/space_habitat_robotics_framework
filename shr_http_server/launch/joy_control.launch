@@ -1,4 +1,6 @@
 <launch>	
 	<include file="$(find interbotix_xsarm_joy)/launch/xsarm_joy.launch" >
 	</include>
+
+	<!-- <node pkg="shr_manipulation" type="set_home.py" name="set_home" output="screen"/> -->
 </launch>

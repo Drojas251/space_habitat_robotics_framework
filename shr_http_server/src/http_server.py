@@ -79,7 +79,6 @@ def move_object():
             <Sequence name="root_sequence">
                 <EnableCamera enable="true"/>
                 <MoveToTarget target="inspect_ground"/>
-                <Wait sec="1"/>
                 <Pick object_id="{object_id}" />
                 <Place object_id="{object_id}" pose="{pose_str}" />
                 <MoveToTarget target="inspect_ground"/>

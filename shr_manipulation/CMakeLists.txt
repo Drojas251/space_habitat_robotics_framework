@@ -18,6 +18,7 @@ find_package(catkin REQUIRED
   actionlib_msgs
   actionlib
   shr_interfaces
+  interbotix_xs_msgs
 )
 
 ## System dependencies are found with CMake's conventions
