@@ -4,9 +4,9 @@ This framework is designed to enable complex manipulation tasks by providing a s
 
 ### shr_manipulation 
 Contains three main files:
-* __manipulation primitives.py__: Contains the ManipulationPrimitive Class which uses moveit to build up primitive robot functions and contains interfaces to databases for knowledge driven robotics. 
-* __manipulation action server.py__: Contains the ManipulationActionServer Class which inherits from the ManipulationPrimitive Class and wrapped the primitive robot functions in a ROS Action Interface. This is the main manipulation node that is launched in launch/bringup_arm.launch
-* __grasp planner.py__: Contains the GraspPlanner Class which provides the 'grasp_planning_service' ROS2 service that is used to plan grasps for the arms based on prior knowledge and information about the objects of interest. 
+* __manipulation_primitives.py__: Contains the ManipulationPrimitive Class which uses moveit to build up primitive robot functions and contains interfaces to databases for knowledge driven robotics. 
+* __manipulation_action_server.py__: Contains the ManipulationActionServer Class which inherits from the ManipulationPrimitive Class and wrapped the primitive robot functions in a ROS Action Interface. This is the main manipulation node that is launched in launch/bringup_arm.launch
+* __grasp_planner.py__: Contains the GraspPlanner Class which provides the 'grasp_planning_service' ROS2 service that is used to plan grasps for the arms based on prior knowledge and information about the objects of interest. 
 
 ### shr_interfaces
 Contains action and service message definitions which are used in this repo, along with various .yaml files used for april_tag nodes, and object database.
