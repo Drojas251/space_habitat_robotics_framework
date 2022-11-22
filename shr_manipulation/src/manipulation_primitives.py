@@ -11,33 +11,35 @@ import math
 import moveit_msgs.msg
 import geometry_msgs.msg
 
-from shr_interfaces.srv import Grasps, GraspsRequest
-from std_srvs.srv import Empty
-from topic_tools.srv import MuxSelect, MuxSelectRequest
+# from shr_interfaces.srv import Grasps, GraspsRequest
+# from std_srvs.srv import Empty
+# from topic_tools.srv import MuxSelect, MuxSelectRequest
 
 
 tau = 2 * math.pi 
-stream = open(rospy.get_param("/object_db"), 'r')
-objects = yaml.safe_load(stream)
+# stream = open(rospy.get_param("/object_db"), 'r')
+# objects = yaml.safe_load(stream)
 
 
 class ManipulationPrimitives:
     def __init__(self):
         self.scene = moveit_commander.PlanningSceneInterface()
         self.robot = moveit_commander.RobotCommander()
-        self.arm = moveit_commander.MoveGroupCommander("interbotix_arm")
-        self.gripper = moveit_commander.MoveGroupCommander("interbotix_gripper")
+        self.arm = moveit_commander.MoveGroupCommander("arm")
+        self.gripper = moveit_commander.MoveGroupCommander("gripper")
         
-        self.arm.allow_replanning(True)
         self.arm.set_max_velocity_scaling_factor(1.0)
         self.arm.set_max_acceleration_scaling_factor(1.0)
 
-        self.grasp_planning_service = rospy.ServiceProxy('grasp_planning_service', Grasps)
+        self.gripper.set_max_velocity_scaling_factor(1.0)
+        self.gripper.set_max_acceleration_scaling_factor(1.0)
 
-        self.finger_max_in = .025
-        self.finger_max_out = .0285
-        self.max_gripper_width = .08
-        self.world_frame = "world"
+        # self.grasp_planning_service = rospy.ServiceProxy('grasp_planning_service', Grasps)
+
+        # self.finger_max_in = .025
+        # self.finger_max_out = .0285
+        # self.max_gripper_width = .08
+        # self.world_frame = "world"
 
     def move_to_pose_msg(self, pose):
         # Moves to a defined Pose
@@ -114,13 +116,13 @@ class ManipulationPrimitives:
         status = True
         return status
 
-    def move_gripper(self, gripper_width):  # todo must fix
+    def move_gripper(self, pos): 
         status = False
 
-        pos = np.clip(0.51018 * gripper_width + 0.0134679, 0.021, 0.057)
         joint_goal = self.gripper.get_current_joint_values()
         joint_goal[0] = pos
-        joint_goal[1] = -pos
+
+        self.gripper.set_joint_value_target(joint_goal)
 
         error_code_val, plan, planning_time, error_code = self.gripper.plan()
         success = (error_code_val == moveit_msgs.msg.MoveItErrorCodes.SUCCESS)
@@ -171,237 +173,237 @@ class ManipulationPrimitives:
         status = True
         return status
 
-    def explore_environment(self):
-        # Runs a routine to Map environment 
-        status = False
+    # def explore_environment(self):
+    #     # Runs a routine to Map environment 
+    #     status = False
 
-        self.reset()
+    #     self.reset()
 
-        for target in ("step6","step1", "step2", "step3", "step4", "step5", "step6"):
-            success = self.move_to_target(target)
-            if success:
-                pass
-            else:
-                status = False
-                return status
+    #     for target in ("step6","step1", "step2", "step3", "step4", "step5", "step6"):
+    #         success = self.move_to_target(target)
+    #         if success:
+    #             pass
+    #         else:
+    #             status = False
+    #             return status
         
-        status = True
-        return status
+    #     status = True
+    #     return status
   
-    def pick(self, object_id, retreat=''):
-        status = False
+    # def pick(self, object_id, retreat=''):
+    #     status = False
 
-        self.enable_camera(False) # turns off Object Adder
+    #     self.enable_camera(False) # turns off Object Adder
 
-        grasps = self.get_grasps(object_id, retreat=retreat) # Gets grasp from grasp planner
+    #     grasps = self.get_grasps(object_id, retreat=retreat) # Gets grasp from grasp planner
         
-        for grasp in grasps:
-            success = self.arm.pick(object_id, grasp, plan_only=True)
-            if success > 0:
-                self.arm.pick(object_id, grasp)
-                status = True
-                break
-            else:
-                status = False
+    #     for grasp in grasps:
+    #         success = self.arm.pick(object_id, grasp, plan_only=True)
+    #         if success > 0:
+    #             self.arm.pick(object_id, grasp)
+    #             status = True
+    #             break
+    #         else:
+    #             status = False
 
-        if status:
-            pass
-        else:
-            self.enable_camera(True)
+    #     if status:
+    #         pass
+    #     else:
+    #         self.enable_camera(True)
             
-        return status
+    #     return status
 
-    def drop(self, object_id, pose):
-        status = False
+    # def drop(self, object_id, pose):
+    #     status = False
 
-        success = self.move_to_pose_msg(pose)
+    #     success = self.move_to_pose_msg(pose)
 
-        if success:
-            pass
-        else:
-            status = False
-            return status
+    #     if success:
+    #         pass
+    #     else:
+    #         status = False
+    #         return status
 
-        success = self.move_gripper_to_target('Open')
+    #     success = self.move_gripper_to_target('Open')
 
-        if success:
-            pass
-        else:
-            status = False
-            return status
+    #     if success:
+    #         pass
+    #     else:
+    #         status = False
+    #         return status
 
-        self.detach_object(object_id)
-        self.remove_object(object_id)
-        self.enable_camera(True)
+    #     self.detach_object(object_id)
+    #     self.remove_object(object_id)
+    #     self.enable_camera(True)
         
-        status = True
-        return status
+    #     status = True
+    #     return status
 
-    def place(self, object_id, pose):
-        status = False
+    # def place(self, object_id, pose):
+    #     status = False
 
-        if len(self.scene.get_attached_objects([object_id])) == 0:
-            rospy.logerr("No object is attached")
-            status = False
-            return status
+    #     if len(self.scene.get_attached_objects([object_id])) == 0:
+    #         rospy.logerr("No object is attached")
+    #         status = False
+    #         return status
 
-        success = self.arm.place(object_id, pose)
+    #     success = self.arm.place(object_id, pose)
 
-        if success > 0:
-            status = True
-        else:
-            status = False
-            return status
+    #     if success > 0:
+    #         status = True
+    #     else:
+    #         status = False
+    #         return status
 
-        self.enable_camera(True)
+    #     self.enable_camera(True)
 
-        return status
+    #     return status
 
-    def reset(self):
-        status = False
+    # def reset(self):
+    #     status = False
 
-        try:
-            self.enable_camera(True)
-            self.wait(0.1)
-            self.scene.remove_attached_object(link='vx300s/ee_gripper_link')
-            self.wait(0.1)
-            self.scene.remove_world_object()
-            self.wait(1)
-            self.clear_octomap()
-            status = True
-        except Exception as e:
-            rospy.logerr('Reset failed: %s' % e)
-            status = False
+    #     try:
+    #         self.enable_camera(True)
+    #         self.wait(0.1)
+    #         self.scene.remove_attached_object(link='vx300s/ee_gripper_link')
+    #         self.wait(0.1)
+    #         self.scene.remove_world_object()
+    #         self.wait(1)
+    #         self.clear_octomap()
+    #         status = True
+    #     except Exception as e:
+    #         rospy.logerr('Reset failed: %s' % e)
+    #         status = False
 
-        return status        
+    #     return status        
 
-    def wait(self, sec):
-        status = False
+    # def wait(self, sec):
+    #     status = False
 
-        try:
-            rate = rospy.Rate(1/sec)
-            rate.sleep()
-            status = True
-        except:
-            status = False
+    #     try:
+    #         rate = rospy.Rate(1/sec)
+    #         rate.sleep()
+    #         status = True
+    #     except:
+    #         status = False
 
-        return status 
+    #     return status 
         
-    def get_grasps(self,object_id, retreat=''):
-        rospy.wait_for_service('grasp_planning_service')
-        req = GraspsRequest()
-        req.object_id = object_id
-        req.retreat = retreat
-        resp = self.grasp_planning_service(req)
-        grasps = resp.grasps        
+    # def get_grasps(self,object_id, retreat=''):
+    #     rospy.wait_for_service('grasp_planning_service')
+    #     req = GraspsRequest()
+    #     req.object_id = object_id
+    #     req.retreat = retreat
+    #     resp = self.grasp_planning_service(req)
+    #     grasps = resp.grasps        
 
-        return grasps
+    #     return grasps
 
-    def enable_camera(self, on):
-        status = False  
+    # def enable_camera(self, on):
+    #     status = False  
 
-        try:
-            rospy.wait_for_service('/mux_image_rect/select')
-            rospy.wait_for_service('/mux_pointcloud/select')
+    #     try:
+    #         rospy.wait_for_service('/mux_image_rect/select')
+    #         rospy.wait_for_service('/mux_pointcloud/select')
 
-            select_image_rect_service = rospy.ServiceProxy('/mux_image_rect/select', MuxSelect)
-            select_pointcloud_service = rospy.ServiceProxy('/mux_pointcloud/select', MuxSelect)
+    #         select_image_rect_service = rospy.ServiceProxy('/mux_image_rect/select', MuxSelect)
+    #         select_pointcloud_service = rospy.ServiceProxy('/mux_pointcloud/select', MuxSelect)
 
-            req_pointcloud = MuxSelectRequest()
-            req_image_rect = MuxSelectRequest()
-            if on:  
-                req_pointcloud.topic = '/camera/depth/color/points'
-                req_image_rect.topic = '/camera/color/image_rect'
-            else:
-                req_pointcloud.topic = 'none'
-                req_image_rect.topic = 'none'
+    #         req_pointcloud = MuxSelectRequest()
+    #         req_image_rect = MuxSelectRequest()
+    #         if on:  
+    #             req_pointcloud.topic = '/camera/depth/color/points'
+    #             req_image_rect.topic = '/camera/color/image_rect'
+    #         else:
+    #             req_pointcloud.topic = 'none'
+    #             req_image_rect.topic = 'none'
 
-            select_pointcloud_service(req_pointcloud)
-            select_image_rect_service(req_image_rect)
+    #         select_pointcloud_service(req_pointcloud)
+    #         select_image_rect_service(req_image_rect)
 
-            status = True
+    #         status = True
 
-        except rospy.ServiceException as e:         
-            rospy.logerr("Enable camera service calls failed: %s"%e)
-            status = False
+    #     except rospy.ServiceException as e:         
+    #         rospy.logerr("Enable camera service calls failed: %s"%e)
+    #         status = False
         
-        return status    
+    #     return status    
 
-    def remove_object(self, object_id):
-        status = False
+    # def remove_object(self, object_id):
+    #     status = False
 
-        try:
-            self.wait(0.1)
-            self.scene.remove_world_object(object_id)
-            self.wait(0.1)
-            status = True
-        except:
-            status = False
+    #     try:
+    #         self.wait(0.1)
+    #         self.scene.remove_world_object(object_id)
+    #         self.wait(0.1)
+    #         status = True
+    #     except:
+    #         status = False
 
-        return status        
+    #     return status        
 
-    def detach_object(self, object_id):
+    # def detach_object(self, object_id):
 
-        status = False
+    #     status = False
 
-        try:
-            self.wait(0.1)
-            self.scene.remove_attached_object(link='vx300s/ee_gripper_link', name=object_id)
-            self.wait(0.1)
-            status = True
-        except:
-            status = False
+    #     try:
+    #         self.wait(0.1)
+    #         self.scene.remove_attached_object(link='vx300s/ee_gripper_link', name=object_id)
+    #         self.wait(0.1)
+    #         status = True
+    #     except:
+    #         status = False
 
-        return status 
+    #     return status 
 
-    def clear_octomap(self):
-        status = False
+    # def clear_octomap(self):
+    #     status = False
 
-        try:
-            rospy.wait_for_service('/vx300s/clear_octomap')
-            clear_octomap_service = rospy.ServiceProxy('/vx300s/clear_octomap', Empty)
-            clear_octomap_service()
-            status = True
+    #     try:
+    #         rospy.wait_for_service('/vx300s/clear_octomap')
+    #         clear_octomap_service = rospy.ServiceProxy('/vx300s/clear_octomap', Empty)
+    #         clear_octomap_service()
+    #         status = True
 
-        except rospy.ServiceException as e:         
-            rospy.logerr("Clear octomap service call failed: %s"%e)
-            status = False
+    #     except rospy.ServiceException as e:         
+    #         rospy.logerr("Clear octomap service call failed: %s"%e)
+    #         status = False
         
-        return status
+    #     return status
 
-    def add_object(self, object_id, pose):
-        status = False
+    # def add_object(self, object_id, pose):
+    #     status = False
 
-        pose_stamped = geometry_msgs.msg.PoseStamped()
-        pose_stamped.pose = pose
-        pose_stamped.header.frame_id = self.world_frame
+    #     pose_stamped = geometry_msgs.msg.PoseStamped()
+    #     pose_stamped.pose = pose
+    #     pose_stamped.header.frame_id = self.world_frame
         
-        dimensions = objects[object_id]['dimensions']
-        type = objects[object_id]['type']
+    #     dimensions = objects[object_id]['dimensions']
+    #     type = objects[object_id]['type']
 
-        try:
-            if type == 'box':
-                if len(dimensions) != 3:
-                    raise Exception("box dimensions wrong")
+    #     try:
+    #         if type == 'box':
+    #             if len(dimensions) != 3:
+    #                 raise Exception("box dimensions wrong")
 
-                self.wait(0.1)
-                self.scene.add_box(object_id, pose_stamped, size=dimensions)
-                self.wait(0.1)
-            elif type == 'cylinder':
-                if len(dimensions) != 2:
-                    raise Exception("cylinder dimensions wrong")
+    #             self.wait(0.1)
+    #             self.scene.add_box(object_id, pose_stamped, size=dimensions)
+    #             self.wait(0.1)
+    #         elif type == 'cylinder':
+    #             if len(dimensions) != 2:
+    #                 raise Exception("cylinder dimensions wrong")
 
-                self.wait(0.1)
-                h, r = dimensions
-                self.scene.add_cylinder(object_id, pose_stamped, h, r)
-                self.wait(0.1)
-            else:
-                raise Exception("Invalid type")
+    #             self.wait(0.1)
+    #             h, r = dimensions
+    #             self.scene.add_cylinder(object_id, pose_stamped, h, r)
+    #             self.wait(0.1)
+    #         else:
+    #             raise Exception("Invalid type")
             
-            status = True
-            return status
+    #         status = True
+    #         return status
 
-        except Exception as e:
-            rospy.logerr(e)
-            status = False
-            return status     
+    #     except Exception as e:
+    #         rospy.logerr(e)
+    #         status = False
+    #         return status     

@@ -5,6 +5,6 @@
 
     <param name="bt_xml" value="$(find shr_behavior_trees)/bt_xml/pick.xml"/>
 
-    <node pkg="shr_behavior_trees" type="test_bt" name="test_bt" ns="/vx300s" output="screen"/>
+    <node pkg="shr_behavior_trees" type="test_bt" name="test_bt" output="screen"/>
 
 </launch>

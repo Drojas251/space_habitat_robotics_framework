@@ -1,16 +1,16 @@
-#include "nodes/pick_node.h"
-#include "nodes/place_node.h"
+// #include "nodes/pick_node.h"
+// #include "nodes/place_node.h"
 #include "nodes/move_to_target_node.h"
 #include "nodes/move_to_pose_node.h"
 #include "nodes/move_gripper_node.h"
 #include "nodes/move_gripper_to_target_node.h"
-#include "nodes/remove_object_node.h"
-#include "nodes/detach_object_node.h"
-#include "nodes/clear_octomap_node.h"
-#include "nodes/enable_camera_node.h"
-#include "nodes/wait_node.h"
-#include "nodes/reset_node.h"
-#include "nodes/add_object_node.h"
+// #include "nodes/remove_object_node.h"
+// #include "nodes/detach_object_node.h"
+// #include "nodes/clear_octomap_node.h"
+// #include "nodes/enable_camera_node.h"
+// #include "nodes/wait_node.h"
+// #include "nodes/reset_node.h"
+// #include "nodes/add_object_node.h"
 #include <ros/ros.h>
 
 #include <behaviortree_cpp_v3/bt_factory.h>
@@ -32,19 +32,19 @@ int main(int argc, char **argv) {
   // We use the BehaviorTreeFactory to register our custom nodes
   BehaviorTreeFactory factory;
 
-  factory.registerNodeType<Pick>("Pick");
-  factory.registerNodeType<Place>("Place");
+  // factory.registerNodeType<Pick>("Pick");
+  // factory.registerNodeType<Place>("Place");
   factory.registerNodeType<MoveToTarget>("MoveToTarget");
   factory.registerNodeType<MoveToPose>("MoveToPose");
   factory.registerNodeType<MoveGripper>("MoveGripper");
   factory.registerNodeType<MoveGripperToTarget>("MoveGripperToTarget");
-  factory.registerNodeType<RemoveObject>("RemoveObject");
-  factory.registerNodeType<DetachObject>("DetachObject");
-  factory.registerNodeType<Reset>("Reset");
-  factory.registerNodeType<ClearOctomap>("ClearOctomap");
-  factory.registerNodeType<EnableCamera>("EnableCamera");
-  factory.registerNodeType<Wait>("Wait");
-  factory.registerNodeType<AddObject>("AddObject");
+  // factory.registerNodeType<RemoveObject>("RemoveObject");
+  // factory.registerNodeType<DetachObject>("DetachObject");
+  // factory.registerNodeType<Reset>("Reset");
+  // factory.registerNodeType<ClearOctomap>("ClearOctomap");
+  // factory.registerNodeType<EnableCamera>("EnableCamera");
+  // factory.registerNodeType<Wait>("Wait");
+  // factory.registerNodeType<AddObject>("AddObject");
 
 
   // Trees are created at deployment-time (i.e. at run-time, but only once at

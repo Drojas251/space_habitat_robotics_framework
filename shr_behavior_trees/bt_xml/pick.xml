@@ -4,17 +4,15 @@
             
             <Fallback>
                 <Sequence>
-                    <SubTree ID="survey"/>
-                    <Pick object_id="cube"/>
-                    <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/>
-                    <MoveToTarget target="inspect_ground"/>
-                    <Pick object_id="box" />
-                    <Place object_id="box" pose="0.3;0;0.1;0;0;0"/>
-                    <MoveToTarget target="inspect_ground"/>
-                    <SubTree ID="survey"/>
-                    <Pick object_id="cube"/>
-                    <Place object_id="cube" pose="0.3;0.2;0.1;0;0;0"/>
-                    <MoveToTarget target="inspect_ground"/>
+                    <!-- <SubTree ID="survey"/> -->
+                    <!-- <Pick object_id="cube"/>
+                    <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/> -->
+                    <MoveToPose pose="0;0.4;0.8;0;0;0;1"/>
+                    <MoveToPose pose="0;0.2;0.8;0;0;0;1"/>
+                    <MoveGripperToTarget target="open"/>
+                    <MoveGripperToTarget target="closed"/>
+                    <MoveGripper gripper_width="0.5"/>
+                    
                     
                 </Sequence>
             </Fallback>
@@ -23,7 +21,7 @@
 
 
 
-    <BehaviorTree ID="survey">
+    <!-- <BehaviorTree ID="survey">
         <Sequence name="survey_sequence">
             <Reset/>
             <MoveToTarget target="step1"/>     
@@ -33,7 +31,7 @@
             <MoveToTarget target="step5"/>     
             <MoveToTarget target="inspect_ground"/>          
         </Sequence>
-    </BehaviorTree>
+    </BehaviorTree> -->
 
 
     <!-- <BehaviorTree ID="MoveRobot">

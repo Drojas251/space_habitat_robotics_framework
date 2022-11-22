@@ -5,16 +5,17 @@ import actionlib
 from manipulation_primitives import ManipulationPrimitives
 import math
 
-from std_srvs.srv import SetBool, SetBoolResponse, Empty, EmptyResponse, Trigger, TriggerResponse
-from shr_interfaces.srv import String, StringResponse, Float, FloatResponse, AddObject, AddObjectResponse
+# from std_srvs.srv import SetBool, SetBoolResponse, Empty, EmptyResponse, Trigger, TriggerResponse
+# from shr_interfaces.srv import String, StringResponse, Float, FloatResponse, AddObject, AddObjectResponse
 
 from shr_interfaces.msg import \
-    DropAction, DropFeedback, DropResult, \
     MoveGripperAction, MoveGripperFeedback, MoveGripperResult, \
     MoveToPoseAction, MoveToPoseFeedback, MoveToPoseResult, \
-    MoveToTargetAction, MoveToTargetFeedback, MoveToTargetResult, \
-    PickAction, PickFeedback, PickResult, \
-    PlaceAction, PlaceFeedback, PlaceResult
+    MoveToTargetAction, MoveToTargetFeedback, MoveToTargetResult 
+    # DropAction, DropFeedback, DropResult, \
+    # PickAction, PickFeedback, PickResult, \
+    # PlaceAction, PlaceFeedback, PlaceResult \
+    
 
 class ManipulationActionServer(ManipulationPrimitives):
     def __init__(self):
@@ -48,41 +49,41 @@ class ManipulationActionServer(ManipulationPrimitives):
             auto_start=False
         )
         self.move_gripper_to_target_as.start()
-        self.pick_as = actionlib.SimpleActionServer(
-            'pick', 
-            PickAction, 
-            execute_cb=self.pick_cb, 
-            auto_start=False
-        )
-        self.pick_as.start()
-        self.place_as = actionlib.SimpleActionServer(
-            'place_object', 
-            PlaceAction, 
-            execute_cb=self.place_cb, 
-            auto_start=False
-        )
-        self.place_as.start()
-        self.drop_as = actionlib.SimpleActionServer(
-            'drop', 
-            DropAction, 
-            execute_cb=self.drop_cb, 
-            auto_start=False
-        )
-        self.drop_as.start()
+        # self.pick_as = actionlib.SimpleActionServer(
+        #     'pick', 
+        #     PickAction, 
+        #     execute_cb=self.pick_cb, 
+        #     auto_start=False
+        # )
+        # self.pick_as.start()
+        # self.place_as = actionlib.SimpleActionServer(
+        #     'place_object', 
+        #     PlaceAction, 
+        #     execute_cb=self.place_cb, 
+        #     auto_start=False
+        # )
+        # self.place_as.start()
+        # self.drop_as = actionlib.SimpleActionServer(
+        #     'drop', 
+        #     DropAction, 
+        #     execute_cb=self.drop_cb, 
+        #     auto_start=False
+        # )
+        # self.drop_as.start()
 
-        self.clear_octomap_service = rospy.Service("clear_octomap_node", Trigger, self.clear_octomap_cb)
+        # self.clear_octomap_service = rospy.Service("clear_octomap_node", Trigger, self.clear_octomap_cb)
 
-        self.remove_object_service = rospy.Service("remove_object", String, self.remove_object_cb)
+        # self.remove_object_service = rospy.Service("remove_object", String, self.remove_object_cb)
 
-        self.detach_object_service = rospy.Service("detach_object", String, self.detach_object_cb)
+        # self.detach_object_service = rospy.Service("detach_object", String, self.detach_object_cb)
 
-        self.reset_service = rospy.Service("reset", Trigger, self.reset_cb)
+        # self.reset_service = rospy.Service("reset", Trigger, self.reset_cb)
 
-        self.wait_service = rospy.Service("wait", Float, self.wait_cb)
+        # self.wait_service = rospy.Service("wait", Float, self.wait_cb)
 
-        self.enable_camera_service = rospy.Service("enable_camera", SetBool, self.enable_camera_cb)
+        # self.enable_camera_service = rospy.Service("enable_camera", SetBool, self.enable_camera_cb)
 
-        self.add_object_service = rospy.Service("add_object", AddObject, self.add_object_cb)
+        # self.add_object_service = rospy.Service("add_object", AddObject, self.add_object_cb)
 
     def move_to_pose_cb(self, goal):
         success = self.move_to_pose_msg(goal.pose)
@@ -116,64 +117,64 @@ class ManipulationActionServer(ManipulationPrimitives):
         else:
             self.move_gripper_to_target_as.set_aborted()
 
-    def pick_cb(self, goal):
-        success = self.pick(goal.object_id, goal.retreat)
+    # def pick_cb(self, goal):
+    #     success = self.pick(goal.object_id, goal.retreat)
 
-        if success:
-            self.pick_as.set_succeeded()
-        else:
-            self.pick_as.set_aborted()
+    #     if success:
+    #         self.pick_as.set_succeeded()
+    #     else:
+    #         self.pick_as.set_aborted()
 
-    def place_cb(self, goal):
-        success = self.place(goal.object_id, goal.pose)
+    # def place_cb(self, goal):
+    #     success = self.place(goal.object_id, goal.pose)
 
-        if success:
-            self.place_as.set_succeeded()
-        else:
-            self.place_as.set_aborted()
+    #     if success:
+    #         self.place_as.set_succeeded()
+    #     else:
+    #         self.place_as.set_aborted()
 
-    def drop_cb(self, goal):
-        success = self.drop(goal.object_id, goal.pose)
+    # def drop_cb(self, goal):
+    #     success = self.drop(goal.object_id, goal.pose)
 
-        if success:
-            self.drop_as.set_succeeded()
-        else:
-            self.drop_as.set_aborted()
+    #     if success:
+    #         self.drop_as.set_succeeded()
+    #     else:
+    #         self.drop_as.set_aborted()
 
-    def clear_octomap_cb(self, req):
-        res = TriggerResponse()
-        res.success = self.clear_octomap()
-        return res
+    # def clear_octomap_cb(self, req):
+    #     res = TriggerResponse()
+    #     res.success = self.clear_octomap()
+    #     return res
 
-    def remove_object_cb(self, req):
-        res = StringResponse()
-        res.success = self.remove_object(req.data)
-        return res
+    # def remove_object_cb(self, req):
+    #     res = StringResponse()
+    #     res.success = self.remove_object(req.data)
+    #     return res
 
-    def detach_object_cb(self, req):
-        res = StringResponse()
-        res.success = self.detach_object(req.data)
-        return res
+    # def detach_object_cb(self, req):
+    #     res = StringResponse()
+    #     res.success = self.detach_object(req.data)
+    #     return res
 
-    def reset_cb(self, req):
-        res = TriggerResponse()
-        res.success = self.reset()
-        return res
+    # def reset_cb(self, req):
+    #     res = TriggerResponse()
+    #     res.success = self.reset()
+    #     return res
 
-    def wait_cb(self, req):
-        res = FloatResponse()
-        res.success = self.wait(req.data)
-        return res
+    # def wait_cb(self, req):
+    #     res = FloatResponse()
+    #     res.success = self.wait(req.data)
+    #     return res
    
-    def enable_camera_cb(self,req):
-        res = SetBoolResponse()
-        res.success = self.enable_camera(req.data)
-        return res
+    # def enable_camera_cb(self,req):
+    #     res = SetBoolResponse()
+    #     res.success = self.enable_camera(req.data)
+    #     return res
 
-    def add_object_cb(self, req):
-        res = AddObjectResponse()
-        res.success = self.add_object(req.object_id, req.pose)
-        return res
+    # def add_object_cb(self, req):
+    #     res = AddObjectResponse()
+    #     res.success = self.add_object(req.object_id, req.pose)
+    #     return res
 
 if __name__ == "__main__":
     rospy.init_node('manipulation_action_server')
