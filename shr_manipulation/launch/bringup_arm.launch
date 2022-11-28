@@ -6,8 +6,8 @@
 	<include file="$(find homestri_moveit_config)/launch/demo.launch" >
 	</include>
 
-	<node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" output="screen"/>
-	<node pkg="shr_behavior_trees" type="behavior_tree_server" name="behavior_tree_server" output="screen"/>
+	<!-- <node pkg="shr_manipulation" type="manipulation_action_server.py" name="manipulation_action_server" output="screen"/> -->
+	<!-- <node pkg="shr_behavior_trees" type="behavior_tree_server" name="behavior_tree_server" output="screen"/> -->
 
 
 </launch>

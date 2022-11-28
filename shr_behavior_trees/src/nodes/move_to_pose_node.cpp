@@ -88,7 +88,7 @@ BT::NodeStatus MoveToPose::tick() {
 
   if (_aborted) {
     // this happens only if method halt() was invoked
-    //_client.cancelAllGoals();
+    move_to_pose_client.cancelAllGoals();
     ROS_ERROR("MoveToPose aborted");
     return BT::NodeStatus::FAILURE;
   }

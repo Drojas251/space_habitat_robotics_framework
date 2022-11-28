@@ -33,8 +33,8 @@ BT::NodeStatus MoveToTarget::tick() {
 
   ROS_INFO("Sending goal");
 
-  shr_interfaces::MoveToTargetGoal msg;
-  msg.target = target;
+  shr_interfaces::StringGoal msg;
+  msg.string = target;
   move_to_target_client.sendGoal(msg);
 
   while (!_aborted && !move_to_target_client.waitForResult(ros::Duration(0.02))) {

@@ -1,6 +1,5 @@
 # Define the goal
-string object_id
-geometry_msgs/Pose pose
+float32 value
 ---
 # Define the result
 ---

@@ -1,6 +1,5 @@
 # Define the goal
-string object_id
-string retreat
+string string
 ---
 # Define the result
 ---

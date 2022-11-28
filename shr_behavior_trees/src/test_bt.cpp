@@ -1,23 +1,28 @@
-// #include "nodes/pick_node.h"
-// #include "nodes/place_node.h"
-#include "nodes/move_to_target_node.h"
-#include "nodes/move_to_pose_node.h"
-#include "nodes/move_gripper_node.h"
-#include "nodes/move_gripper_to_target_node.h"
-// #include "nodes/remove_object_node.h"
-// #include "nodes/detach_object_node.h"
-// #include "nodes/clear_octomap_node.h"
-// #include "nodes/enable_camera_node.h"
-// #include "nodes/wait_node.h"
-// #include "nodes/reset_node.h"
-// #include "nodes/add_object_node.h"
+#include "action_client_nodes.h"
+#include "node_input_conversions.h"
+
 #include <ros/ros.h>
+#include <iostream>
 
 #include <behaviortree_cpp_v3/bt_factory.h>
 #include <behaviortree_cpp_v3/loggers/bt_cout_logger.h>
 #include "behaviortree_cpp_v3/behavior_tree.h"
 
 using namespace BT;
+
+int count = 0;
+
+BT::NodeStatus CheckBattery()
+{
+  std::cout << count << std::endl;
+  if (count < 10000) {
+    return BT::NodeStatus::SUCCESS;
+  }
+  else {
+    
+    return BT::NodeStatus::FAILURE;
+  }
+}
 
 int main(int argc, char **argv) {
 
@@ -32,20 +37,13 @@ int main(int argc, char **argv) {
   // We use the BehaviorTreeFactory to register our custom nodes
   BehaviorTreeFactory factory;
 
-  // factory.registerNodeType<Pick>("Pick");
-  // factory.registerNodeType<Place>("Place");
-  factory.registerNodeType<MoveToTarget>("MoveToTarget");
-  factory.registerNodeType<MoveToPose>("MoveToPose");
-  factory.registerNodeType<MoveGripper>("MoveGripper");
-  factory.registerNodeType<MoveGripperToTarget>("MoveGripperToTarget");
-  // factory.registerNodeType<RemoveObject>("RemoveObject");
-  // factory.registerNodeType<DetachObject>("DetachObject");
-  // factory.registerNodeType<Reset>("Reset");
-  // factory.registerNodeType<ClearOctomap>("ClearOctomap");
-  // factory.registerNodeType<EnableCamera>("EnableCamera");
-  // factory.registerNodeType<Wait>("Wait");
-  // factory.registerNodeType<AddObject>("AddObject");
-
+  factory.registerSimpleCondition("CheckBattery", std::bind(CheckBattery));
+  factory.registerNodeType<ActionClientNode<MoveToTargetPolicy>>("MoveToTarget");
+  factory.registerNodeType<ActionClientNode<MoveToPosePolicy>>("MoveToPose");
+  factory.registerNodeType<ActionClientNode<MoveGripperPolicy>>("MoveGripper");
+  factory.registerNodeType<ActionClientNode<MoveGripperToTargetPolicy>>("MoveGripperToTarget");
+  factory.registerNodeType<ActionClientNode<PreGraspApproachPolicy>>("PreGraspApproach");
+  factory.registerNodeType<ActionClientNode<MoveCartesianPathPolicy>>("MoveCartesianPath");
 
   // Trees are created at deployment-time (i.e. at run-time, but only once at
   // the beginning). The currently supported format is XML. IMPORTANT: when the
@@ -58,6 +56,7 @@ int main(int argc, char **argv) {
   NodeStatus status = NodeStatus::RUNNING;
   // Keep on ticking until you get either a SUCCESS or FAILURE state
   while (ros::ok() && status == NodeStatus::RUNNING) {
+    count++;
     status = tree.rootNode()->executeTick();
     // Sleep 100 milliseconds
     std::this_thread::sleep_for(std::chrono::milliseconds(100));

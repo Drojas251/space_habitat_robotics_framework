@@ -1,23 +1,41 @@
 <root main_tree_to_execute = "MainTree">
     <BehaviorTree ID="MainTree">
-        <Sequence>
+                <ReactiveSequence>
+                    <CheckBattery/>
+
+                    <Sequence>
+                        <MoveToPose pose="0.5;0.5;0.1;0;1.5707;0"/>
+                        <MoveToPose pose="-0.5;0.5;0.1;0;1.5707;0"/>
+                        <MoveToTarget target="home"/>
+                        <PreGraspApproach value="0.1"/>
+                        <MoveCartesianPath pose="0.5;0.5;0.1;0;1.5707;0"/>
+                        <MoveGripperToTarget target="open"/>
+                        <MoveGripperToTarget target="close"/>
+                        <MoveGripper value="0.5"/>
+                    </Sequence>
+                </ReactiveSequence>
             
-            <Fallback>
-                <Sequence>
-                    <!-- <SubTree ID="survey"/> -->
-                    <!-- <Pick object_id="cube"/>
-                    <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/> -->
-                    <MoveToPose pose="0;0.4;0.8;0;0;0;1"/>
-                    <MoveToPose pose="0;0.2;0.8;0;0;0;1"/>
-                    <MoveGripperToTarget target="open"/>
-                    <MoveGripperToTarget target="closed"/>
-                    <MoveGripper gripper_width="0.5"/>
-                    
-                    
-                </Sequence>
-            </Fallback>
-        </Sequence>
+                
     </BehaviorTree>
+
+
+</root>
+
+    <!-- <MoveToPose pose="-0.5;-0.5;0.1;0;1.5707;0"/>
+                        <MoveToPose pose="0.5;-0.5;0.1;0;1.5707;0"/>
+
+                        <MoveToPose pose="0.6;0;0.1;0;1.5707;0"/>
+                        <MoveToPose pose="-0.6;0;0.1;0;1.5707;0"/> -->
+
+
+
+                        <!-- <SubTree ID="survey"/> -->
+                        <!-- <Pick object_id="cube"/>
+                        <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/> -->
+                        
+                        <!-- <MoveGripperToTarget target="open"/>
+                        <MoveGripperToTarget target="close"/>
+                        <MoveGripper gripper_width="0.5"/> -->
 
 
 
@@ -55,6 +73,3 @@
             
         </Sequence>
     </BehaviorTree> -->
-
-
-</root>

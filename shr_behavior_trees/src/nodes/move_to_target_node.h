@@ -6,10 +6,10 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 
-#include <shr_interfaces/MoveToTargetAction.h>
-#include <shr_interfaces/MoveToTargetGoal.h>
-#include <shr_interfaces/MoveToTargetResult.h>
-#include <shr_interfaces/MoveToTargetFeedback.h>
+#include <shr_interfaces/StringAction.h>
+#include <shr_interfaces/StringGoal.h>
+#include <shr_interfaces/StringResult.h>
+#include <shr_interfaces/StringFeedback.h>
 
 #include "behaviortree_cpp_v3/behavior_tree.h"
 
@@ -28,7 +28,7 @@ class MoveToTarget : public BT::AsyncActionNode
     virtual void halt() override;
 
   private:
-    actionlib::SimpleActionClient<shr_interfaces::MoveToTargetAction> move_to_target_client;
+    actionlib::SimpleActionClient<shr_interfaces::StringAction> move_to_target_client;
     bool _aborted;
 };
 

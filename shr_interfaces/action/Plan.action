@@ -1,5 +1,6 @@
 # Define the goal
-string target
+moveit_msgs/RobotTrajectory plan
+string group
 ---
 # Define the result
 ---
