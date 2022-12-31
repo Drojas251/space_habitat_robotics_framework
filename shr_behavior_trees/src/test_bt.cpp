@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
   NodeStatus status = NodeStatus::IDLE;
 
-  while( ros::ok() && (status == NodeStatus::IDLE || status == NodeStatus::RUNNING || status == NodeStatus::FAILURE))
+  while( ros::ok() && (status == NodeStatus::IDLE || status == NodeStatus::RUNNING /*|| status == NodeStatus::FAILURE*/))
   {
     ros::spinOnce();
     status = tree.tickRoot();

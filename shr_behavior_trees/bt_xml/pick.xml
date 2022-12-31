@@ -1,94 +1,28 @@
 <root main_tree_to_execute="MainTree">
-  <BehaviorTree ID="MainTree">
-    <RetryUntilSuccessful num_attempts="100">
-      <ReactiveSequence>
-        <GraspedCondition topic_name="/turtle1/cmd_vel" />
-        <Sequence>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move arm to pose" 
-            description="" 
-            pose="0.4;0;0.3;0;1.5707;0"/>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move arm to target" 
-            description="" 
-            target="home"/>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move arm pregrasp approach" 
-            description="" 
-            position="0.1"/>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move arm cartesian path" 
-            description="" 
-            pose="0.4;0;0.3;0;1.5707;0"/>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move gripper to target" 
-            description="" 
-            target="close"/>
-          <ManipulationAction 
-            server_name="manip_as" 
-            id="move gripper to position" 
-            description="" 
-            position="0"/>
-        </Sequence>
-      </ReactiveSequence>
-    </RetryUntilSuccessful>
-
+  <BehaviorTree ID="PickAndPlace">
+    <Sequence>
+      <ManipulationAction server_name="manip_as" id="move arm to pose" description="" pose="{target}"/>
+      <ManipulationAction server_name="manip_as" id="move arm pregrasp approach" description="" position="0.08"/>
+      <ManipulationAction server_name="manip_as" id="move gripper to target" description="" target="close"/>
+      <ManipulationAction server_name="manip_as" id="move arm pregrasp approach" description="" position="-0.2"/>
+      <ManipulationAction server_name="manip_as" id="move arm cartesian path" description="" pose="0.4;-0.2;0.2;0;1.5707;0"/>
+      <ManipulationAction server_name="manip_as" id="move gripper to target" description="" target="open"/>
+    </Sequence>
   </BehaviorTree>
 
+  <BehaviorTree ID="MainTree">
+    <Sequence name="door_open_sequence">
+      <ManipulationAction server_name="manip_as" id="move arm to target" description="" target="home"/>
+      <SetBlackboard output_key="id_1" value="0.3;0.2;0.1;0;1.5707;0" />
+      <SubTree ID="PickAndPlace" target="id_1" />
+      <ManipulationAction server_name="manip_as" id="move arm to target" description="" target="home"/>
+      <SetBlackboard output_key="id_1" value="0.4;0.2;0.1;0;1.5707;0" />
+      <SubTree ID="PickAndPlace" target="id_1" />
+      <ManipulationAction server_name="manip_as" id="move arm to target" description="" target="home"/>
+      <SetBlackboard output_key="id_1" value="0.5;0.2;0.1;0;1.5707;0" />
+      <SubTree ID="PickAndPlace" target="id_1" />
+      <ManipulationAction server_name="manip_as" id="move arm to target" description="" target="home"/>
+    </Sequence>
+  </BehaviorTree>
 
 </root>
-<!-- <MoveToPose pose="-0.5;-0.5;0.1;0;1.5707;0"/>
-                        <MoveToPose pose="0.5;-0.5;0.1;0;1.5707;0"/>
-
-                        <MoveToPose pose="0.6;0;0.1;0;1.5707;0"/>
-                        <MoveToPose pose="-0.6;0;0.1;0;1.5707;0"/> -->
-
-
-<!-- <SubTree ID="survey"/> -->
-<!-- <Pick object_id="cube"/>
-                        <Place object_id="cube" pose="0.3;-0.2;0.1;0;0;0"/> -->
-
-<!-- <MoveGripperToTarget target="open"/>
-                        <MoveGripperToTarget target="close"/>
-                        <MoveGripper gripper_width="0.5"/> -->
-
-
-<!-- <BehaviorTree ID="survey">
-        <Sequence name="survey_sequence">
-            <Reset/>
-            <MoveToTarget target="step1"/>     
-            <MoveToTarget target="step2"/>     
-            <MoveToTarget target="step3"/>     
-            <MoveToTarget target="step4"/>     
-            <MoveToTarget target="step5"/>     
-            <MoveToTarget target="inspect_ground"/>          
-        </Sequence>
-    </BehaviorTree> -->
-
-
-<!-- <BehaviorTree ID="MoveRobot">
-        <Sequence name="SetGoal">
-            <AddObject object_id="cube" pose="0.3;0;0.1;0;0;0"/>
-            <ClearOctomap/>
-            <MoveToTarget target="step6" />
-            <Wait sec="3" />
-            <Pick object_id="cube" retreat="-x"/>
-            <MoveGripperToTarget target="Open"/>
-            <DetachObject object_id="cube"/>
-            <EnableCamera enable="true" />
-            <Pick object_id="cube"/>
-            <Place object_id="cube" pose="0.4;0;0.1;0;0;0"/>
-            <RemoveObject object_id="cube"/>
-            <MoveGripper gripper_width="0.05" />  
-            <MoveToPose pose="0.2;0;0.5;0;0;0"/>
-            
-            <Reset/>
-            
-            
-        </Sequence>
-    </BehaviorTree> -->
