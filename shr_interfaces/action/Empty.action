@@ -1,5 +1,4 @@
 # Define the goal
-moveit_msgs/RobotTrajectory plan
 ---
 # Define the result
 ---

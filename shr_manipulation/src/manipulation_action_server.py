@@ -2,171 +2,74 @@
 
 import rospy
 import actionlib
-import actionlib_msgs.msg
-from manipulation_actions import ManipulationActions
-import math
-
-from shr_interfaces.msg import \
-    FloatAction, FloatFeedback, FloatResult, \
-    PoseAction, PoseFeedback, PoseResult, \
-    StringAction, StringFeedback, StringResult \
+from async_move_groups import Arm, Gripper
+from threading import Thread
+from shr_interfaces.msg import ActionNodeAction
     
+class ThreadWithReturnValue(Thread):
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None):
+        Thread.__init__(self, group, target, name, args, kwargs)
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                                **self._kwargs)
+    def join(self, *args):
+        Thread.join(self, *args)
+        return self._return
 
 class ManipulationActionServer():
     def __init__(self):
         super().__init__()
 
-        move_groups = ['arm', 'gripper']
-        self.ma = ManipulationActions(move_groups)
+        self.arm = Arm('arm')
+        self.gripper = Gripper('gripper')
 
-        self.move_to_pose_as = actionlib.SimpleActionServer(
-            'move_to_pose', 
-            PoseAction, 
-            execute_cb=self.move_to_pose_cb, 
+        self.actserv = actionlib.SimpleActionServer(
+            'manip_as', 
+            ActionNodeAction, 
+            execute_cb=self.action_cb, 
             auto_start=False
         )
-        self.move_to_pose_as.start()
+        self.actserv.start()
 
-        self.move_to_target_as = actionlib.SimpleActionServer(
-            'move_to_target', 
-            StringAction, 
-            execute_cb=self.move_to_target_cb, 
-            auto_start=False
-        )
-        self.move_to_target_as.start()
+    def action_cb(self, goal):
+        id = goal.id
 
-        self.move_gripper_as = actionlib.SimpleActionServer(
-            'move_gripper', 
-            FloatAction, 
-            execute_cb=self.move_gripper_cb, 
-            auto_start=False
-        )
-        self.move_gripper_as.start()
+        if id == 'move arm to pose':
+            self.start_thread_and_wait_for_result(self.arm.move_to_pose, (goal.pose, ))
+        elif id == 'move arm to target':
+            self.start_thread_and_wait_for_result(self.arm.move_to_target, (goal.target, ))
+        elif id == 'move arm pregrasp approach':
+            self.start_thread_and_wait_for_result(self.arm.pregrasp_approach, (goal.position, ))
+        elif id == 'move arm cartesian path':
+            self.start_thread_and_wait_for_result(self.arm.move_cartesian_path, (goal.pose, ))
+        elif id == 'move gripper to target':
+            self.start_thread_and_wait_for_result(self.gripper.move_to_target, (goal.target, ))
+        elif id == 'move gripper to position':
+            self.start_thread_and_wait_for_result(self.gripper.move_to_position, (goal.position, ))
 
-        self.move_gripper_to_target_as = actionlib.SimpleActionServer(
-            'move_gripper_to_target', 
-            StringAction, 
-            execute_cb=self.move_gripper_to_target_cb, 
-            auto_start=False
-        )
-        self.move_gripper_to_target_as.start() 
+    def start_thread_and_wait_for_result(self, function, args):
+        thread = ThreadWithReturnValue(target=function, args=args)
+        thread.start()
 
-        self.pregrasp_approach_as = actionlib.SimpleActionServer(
-            'pregrasp_approach', 
-            FloatAction, 
-            execute_cb=self.pregrasp_approach_cb, 
-            auto_start=False
-        )
-        self.pregrasp_approach_as.start()
-
-        self.move_cartesian_path_as = actionlib.SimpleActionServer(
-            'move_cartesian_path', 
-            PoseAction, 
-            execute_cb=self.move_cartesian_path_cb, 
-            auto_start=False
-        )
-        self.move_cartesian_path_as.start()
-
-    def move_to_pose_cb(self, goal):
-        success = self.ma.move_to_pose('arm', goal.pose)
+        while thread.is_alive():
+            if self.actserv.is_preempt_requested():
+                self.arm.stop()
+                self.gripper.stop()
+                self.actserv.set_preempted()
+                thread.join()
+                return
+            rospy.sleep(0.02)
+            
+        success = thread.join()
         if not success:
-            self.move_to_pose_as.set_aborted()
+            self.actserv.set_aborted()
             return
-        self.ma.wait_for_result(self.move_to_pose_as)
 
-    def move_to_target_cb(self, goal):
-        success = self.ma.move_to_target('arm', goal.string)
-        if not success:
-            self.move_to_pose_as.set_aborted()
-            return
-        self.ma.wait_for_result(self.move_to_target_as)
-         
-    def move_gripper_cb(self, goal):
-        success = self.ma.move_gripper('gripper', goal.value)
-        if not success:
-            self.move_to_pose_as.set_aborted()
-            return
-        self.ma.wait_for_result(self.move_gripper_as)
-
-    def move_gripper_to_target_cb(self, goal):
-        success = self.ma.move_to_target('gripper', goal.string)
-        if not success:
-            self.move_to_pose_as.set_aborted()
-            return
-        self.ma.wait_for_result(self.move_gripper_to_target_as)
-
-    def pregrasp_approach_cb(self, goal):
-        success = self.ma.pregrasp_approach('arm', goal.value)
-        if not success:
-            self.pregrasp_approach_as.set_aborted()
-            return
-        self.ma.wait_for_result(self.pregrasp_approach_as)
-
-    def move_cartesian_path_cb(self, goal):
-        success = self.ma.move_cartesian_path('arm', goal.pose)
-        if not success:
-            self.move_cartesian_path_as.set_aborted()
-            return
-        self.ma.wait_for_result(self.move_cartesian_path_as)
-
-    # def pick_cb(self, goal):
-    #     success = self.pick(goal.object_id, goal.retreat)
-
-    #     if success:
-    #         self.pick_as.set_succeeded()
-    #     else:
-    #         self.pick_as.set_aborted()
-
-    # def place_cb(self, goal):
-    #     success = self.place(goal.object_id, goal.pose)
-
-    #     if success:
-    #         self.place_as.set_succeeded()
-    #     else:
-    #         self.place_as.set_aborted()
-
-    # def drop_cb(self, goal):
-    #     success = self.drop(goal.object_id, goal.pose)
-
-    #     if success:
-    #         self.drop_as.set_succeeded()
-    #     else:
-    #         self.drop_as.set_aborted()
-
-    # def clear_octomap_cb(self, req):
-    #     res = TriggerResponse()
-    #     res.success = self.clear_octomap()
-    #     return res
-
-    # def remove_object_cb(self, req):
-    #     res = StringResponse()
-    #     res.success = self.remove_object(req.data)
-    #     return res
-
-    # def detach_object_cb(self, req):
-    #     res = StringResponse()
-    #     res.success = self.detach_object(req.data)
-    #     return res
-
-    # def reset_cb(self, req):
-    #     res = TriggerResponse()
-    #     res.success = self.reset()
-    #     return res
-
-    # def wait_cb(self, req):
-    #     res = FloatResponse()
-    #     res.success = self.wait(req.data)
-    #     return res
-   
-    # def enable_camera_cb(self,req):
-    #     res = SetBoolResponse()
-    #     res.success = self.enable_camera(req.data)
-    #     return res
-
-    # def add_object_cb(self, req):
-    #     res = AddObjectResponse()
-    #     res.success = self.add_object(req.object_id, req.pose)
-    #     return res
+        self.actserv.set_succeeded()
 
 if __name__ == "__main__":
     rospy.init_node('manipulation_action_server')

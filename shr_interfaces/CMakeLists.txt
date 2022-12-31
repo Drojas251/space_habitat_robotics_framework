@@ -71,10 +71,12 @@ add_service_files(
 # Generate actions in the 'action' folder
 add_action_files(
   FILES
+  Manipulation.action
   Float.action
   Pose.action
   String.action
   Plan.action
+  Empty.action
   ExecuteBehaviorTree.action
 )
 
