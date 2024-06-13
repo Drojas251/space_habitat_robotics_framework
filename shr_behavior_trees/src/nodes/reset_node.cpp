@@ -25,10 +25,12 @@ BT::NodeStatus Reset::tick() {
   }
   else
   {
-    ROS_ERROR("Failed to call Reset");
-    return BT::NodeStatus::FAILURE;
+    ROS_INFO("Reset succeeded");
+    return BT::NodeStatus::SUCCESS;
   }
 
-  ROS_INFO("Reset succeeded");
-  return BT::NodeStatus::SUCCESS;
+  ROS_ERROR("Failed to call Reset");
+  return BT::NodeStatus::FAILURE;
+
+    
 }
